@@ -5,5 +5,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface UserDetailService {
-    public void insertUser(UserDto userDto);
+    public UserDto findUserByUserId(String userId);
+
+    public void signup(UserDto userDto);
 }

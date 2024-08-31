@@ -14,7 +14,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@DisplayName("회원 테스트")
+@DisplayName("회원 mapper 테스트")
 //@ExtendWith(SpringExtension.class)
 @SpringBootTest
 class UserMapperTest {

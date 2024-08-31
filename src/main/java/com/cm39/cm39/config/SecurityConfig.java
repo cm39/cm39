@@ -30,7 +30,7 @@ public class SecurityConfig {
 
     // 비밀번호 해시화 및 비교
     @Bean
-    public PasswordEncoder passwordEncoder() {
+    public BCryptPasswordEncoder passwordEncoder() {
         // BCrypt - 암호화 알고리즘
         return new BCryptPasswordEncoder();
     }

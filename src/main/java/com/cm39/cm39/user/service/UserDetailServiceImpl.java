@@ -1,9 +1,12 @@
 package com.cm39.cm39.user.service;
 
+import com.cm39.cm39.exception.user.AlreadyExistsUserException;
+import com.cm39.cm39.exception.user.UserNotFoundException;
 import com.cm39.cm39.user.domain.UserDto;
 import com.cm39.cm39.user.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,23 +27,40 @@ public class UserDetailServiceImpl implements UserDetailService {
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
-//    public UserDto selectUserByUserId(String userId) {
-//        UserDto selectedUser = userMapper.selectUserByUserId(userId);
-//        if (selectedUser == null) {
-//            // user not found
-//        }
-//        return selectedUser;
-//    }
+    // userId로 회원 정보 조회
+    public UserDto findUserByUserId(String userId) {
+        UserDto selectedUser = userMapper.selectUserByUserId(userId);
 
+        if (selectedUser == null) {
+            // user not found
+            return null;
+        }
+
+        return selectedUser;
+    }
+
+    // 회원가입
     @Transactional
-    public void insertUser(UserDto userDto) {
+    public void signup(UserDto userDto) {
+        if (userDto == null) {
+            throw new UserNotFoundException("회원 정보를 찾을 수 없습니다.");
+        }
+
+        // 이미 존재하는 계정인지 검증
+        UserDto selectedUser = findUserByUserId(userDto.getUserId());
+
+        if (selectedUser != null) {
+            throw new AlreadyExistsUserException(selectedUser.getSnsTypeCode() + "로 이미 가입한 회원입니다.");
+        }
+
         // 비밀번호 암호화
         userDto.setPwd(bCryptPasswordEncoder.encode(userDto.getPwd()));
-        if (userDto == null) {
-            // user must not null
-        }
+
+        // insert
         userMapper.insertUser(userDto);
     }
 }
