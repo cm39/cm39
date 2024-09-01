@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cm39.cm39.order.mapper.CartProductOptionMapper">
+<!--
+    # 장바구니 기능 요구사항
+    1. 장바구니 담기(상품 상세 페이지에서만 담을 수 있음)
+        1. 같은 상품의 다른 옵션이면 항상 따로 담긴다.
+        2. 같은 상품의 같은 옵션은 기존 수량 + n으로 담긴다.
+
+    2. 장바구니 목록(변경, 삭제)
+        1. 1~n개 종류의 선택한 옵션 상품을 삭제할 수 있다.
+        2. 옵션 상품을 개별적으로 삭제할 수 있다.
+        3. 옵션 상품의 옵션과 수량을 변경할 수 있다.
+            3-1. 이미 담겨 있는 옵션으로 변경하면 기존 수량 + n
+        4. 최대 구매 가능 수량을 초과하게 변경할 수 없다.
+        5. 품절상품은 삭제만 가능하다.
+
+    # 장바구니 기능 처리 흐름
+    1. 상품 담기
+        1. 같은 옵션이 있으면 수량만 증가
+            1. 같은 옵션이 있으면
+                1. 기존 수량 + n 최대 주문 수량 체크
+                2. 기존 수량 + n
+            2. 없으면 새로 생성
+                1. 최대 주문 수량 체크
+                2. 새로 생성
+
+    2. 목록 조회
+        1. 회원 아이디에 해당하는 상품 조회
+        2. 없으면 빈 리스트 반환 ("장바구니에 담긴 상품이 없습니다" 출력)
+
+    3. 상품 수정
+        1. 옵션 수정 (같은 옵션이 있으면 수량 더하기)
+            1. 같은 옵션이 있으면
+                1. 기존 수량 + n 최대 주문 수량 체크
+                2. 기존 수량 + n
+            2. 없으면 새로 생성
+                1. 최대 주문 수량 체크
+                2. 새로 생성
+        2. 수량 수정
+            1. 최대 주문 수량 체크
+                1. 초과 하지 않으면 수정
+                2. 초과 하면 예외 발생
+
+    4. 상품 삭제
+        1. 상품 삭제 시도
+            1. 결과가 0이면 "이미 삭제된 상품입니다."
+            2. 결과가 0보다 크면 "정상적으로 삭제 되었습니다."
+
+    # 필요한 쿼리
+    1. 같은 옵션이 있는지 확인
+    2. 새 상품 저장
+    3. 기존 상품 수정
+    4. 기존 상품 삭제
+    5. 유저 장바구니 목록 조회
+    6. 유저 장바구니 수량 카운트
+-->
+<!--    장바구니 상품 옵션 저장-->
+    <insert id="insertCartProductOption" parameterType="CartProductOptionDto">
+        insert into CartProductOption (user_id, cart_seq, opt_type_no, opt_detail_seq)
+        values (#{userId}, #{cartSeq}, #{optTypeNo}, #{optDetailSeq})
+    </insert>
+
+<!--    장바구니 상품 옵션 변경-->
+    <update id="updateCartProductOption" parameterType="CartProductOptionDto">
+        update CartProductOption
+        set opt_detail_seq = #{optDetailSeq},
+            up_id = #{userId},
+            up_date = DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s')
+        where user_id = #{userId}
+        and cart_seq = #{cartSeq}
+        and opt_type_no = #{optTypeNo}
+    </update>
+
+<!--    장바구니에 같은 옵션 상품이 있는지 조회-->
+    <select id="selectCartProductSameOption" resultType="CartProductOptionDto" parameterType="CartProductOptionDto">
+        select user_id, cart_seq, opt_type_no, opt_detail_seq
+        from CartProductOption
+        where user_id = #{userId}
+        and cart_seq = #{cartSeq}
+        and opt_type_no = #{optTypeNo}
+        and opt_detail_seq = #{optDetailSeq}
+    </select>
+
+<!--    장바구니 상품 옵션 삭제-->
+    <delete id="deleteCartProductOption" parameterType="CartProductOptionDto">
+        delete
+        from CartProductOption
+        where user_id = #{userId}
+        and cart_seq = #{cartSeq}
+    </delete>
+
+
+<!--    테스트 용-->
+<!--    전체 삭제-->
+    <delete id="deleteAll">
+        delete
+        from CartProductOption
+    </delete>
+
+<!--    전체 개수-->
+    <select id="countAll" resultType="int">
+        select count(*)
+        from CartProductOption
+    </select>
+
+<!--    전체 목록 조회-->
+    <select id="selectAll" resultType="CartProductOptionDto">
+        select user_id, cart_seq, opt_type_no, opt_detail_seq
+        from CartProductOption
+    </select>
+</mapper>
