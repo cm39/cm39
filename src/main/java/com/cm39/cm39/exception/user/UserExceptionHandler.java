@@ -46,6 +46,11 @@ public class UserExceptionHandler {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
     }
 
+    // 인증 실패
+    public ResponseEntity<String> handleUserVerifyException(UserVerifyException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
     // 회원에서 발생하는 최상위 예외
     @ExceptionHandler(UserException.class)
     public ResponseEntity<String> handleUserException(UserException e) {

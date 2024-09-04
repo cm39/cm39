@@ -17,7 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
  * 3. 정보 형식 검증
  * 4. 입력한 email로 DB 조회
  * 4-1. 이미 존재할 경우 sns type으로 팝업 메시지 노출
- * 4-2. 존재하지 않을 경우 가입 성공 + 리다이렉트
+ * 4-2. 존재하지 않을 경우 이메일 인증
+ * 4-3. 이메일 인증 성공시 가입 성공 + 리다이렉트
  * 5. 비밀번호 암호화
  * 6. DB 저장
  * */
