@@ -9,7 +9,8 @@ public enum UserExceptionMessage {
     INVALID_ACCOUNT("유효하지 않은 계정입니다."),
     ACCOUNT_NOT_FOUND("회원을 찾을 수 없습니다."),
     FAIL_SEND_MAIL("메일 발송이 실패했습니다. 고객센터에 문의해 주세요."),
-    INVALID_VERIFY_CODE("이메일 인증에 실패했습니다. 다시 시도해주세요.");
+    INVALID_VERIFY_CODE("이메일 인증에 실패했습니다. 다시 시도해주세요."),
+    FAIL_SEND_CODE("인증 메일 전송에 실패했습니다. 다시 시도해주세요.");
 
     private final String message;
 

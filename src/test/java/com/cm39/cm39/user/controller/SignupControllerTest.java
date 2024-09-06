@@ -25,16 +25,28 @@ class SignupControllerTest {
 
     @Autowired
     private UserMapper userMapper;
-    
+
     @BeforeEach
     void deleteAllUser() {
         userMapper.deleteAllUser();
         assertEquals(countUser(), 0);
     }
 
+    @Test
+    void sendMail() {
+        String email = "seon.hannn@gmail.com";
+
+        try {
+            signupController.sendMail(email);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
     @DisplayName("가입 성공 테스트")
     @Test
-    void signupForm() {
+    void signupTest() {
         UserDto user = getValidUserDto();
         signupController.signup(user);
         assertEquals(countUser(), 1);

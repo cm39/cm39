@@ -47,7 +47,14 @@ public class UserExceptionHandler {
     }
 
     // 인증 실패
+    @ExceptionHandler(UserVerifyException.class)
     public ResponseEntity<String> handleUserVerifyException(UserVerifyException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    // 이메일 전송 실패
+    @ExceptionHandler(FailSendEmailException.class)
+    public ResponseEntity<String> handleFailSendEmailException(FailSendEmailException e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 

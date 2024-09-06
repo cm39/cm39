@@ -1,6 +1,7 @@
 package com.cm39.cm39.user.service;
 
 import com.cm39.cm39.exception.user.AlreadyExistsUserException;
+import com.cm39.cm39.exception.user.FailSendEmailException;
 import com.cm39.cm39.exception.user.UserException;
 import com.cm39.cm39.exception.user.UserExceptionMessage;
 import com.cm39.cm39.user.mapper.UserMapper;
@@ -85,15 +86,18 @@ public class MailService {
     }
 
     // email 전송
-    public String sendEmail(String email) throws Exception {
+    public String sendEmail(String email) {
         checkDuplicatedEmail(email);
-        MimeMessage message = createEmailMessage(senderEmail, email);
 
         try {
+            MimeMessage message = createEmailMessage(senderEmail, email);
             javaMailSender.send(message);
+        } catch (MessagingException e) {
+            throw new FailSendEmailException(UserExceptionMessage.FAIL_SEND_CODE.getMessage());
+        } catch (UnsupportedEncodingException e) {
+
         } catch (MailException e) {
-            e.printStackTrace();
-            throw new UserException(UserExceptionMessage.FAIL_SEND_MAIL.getMessage());
+            throw new FailSendEmailException(UserExceptionMessage.FAIL_SEND_MAIL.getMessage());
         }
 
         return code;

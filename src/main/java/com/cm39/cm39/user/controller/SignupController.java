@@ -29,18 +29,8 @@ public class SignupController {
         return "/user/signup";
     }
 
-    @PostMapping("/request")
-    public String signup(@Valid UserDto userDto) {
-        String userId = userDetailService.signup(userDto);
-        if (userId != null) {
-            // 회원가입 성공 화면으로 redirect
-            return "redirect:/signup/complete";
-        }
-        return "signup";
-    }
-
     @PostMapping("/send-email")
-    public ResponseEntity<String> mailConfirm(String email) throws Exception {
+    public ResponseEntity<String> sendMail(String email) {
         String verifyCode = mailService.sendEmail(email);
         String message = "이메일 인증 메일이 전송되었습니다.";
         return new ResponseEntity<>(message, HttpStatus.OK);
@@ -49,5 +39,15 @@ public class SignupController {
     @PostMapping("/verify-code")
     public String verifyCode(String inputCode) {
         return mailService.verifyCode(inputCode) ? "인증 완료되었습니다." : "인증 실패하셨습니다.";
+    }
+
+    @PostMapping("/request")
+    public String signup(@Valid UserDto userDto) {
+        String userId = userDetailService.signup(userDto);
+        if (userId != null) {
+            // 회원가입 성공 화면으로 redirect
+            return "redirect:/signup/complete";
+        }
+        return "signup";
     }
 }
