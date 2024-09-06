@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.cm39.cm39.order.mapper.CartProductMapper">
+<mapper namespace="com.cm39.cm39.order.mapper.CartItemMapper">
 <!--
     # 장바구니 기능 요구사항
     1. 장바구니 담기(상품 상세 페이지에서만 담을 수 있음)
@@ -57,61 +57,75 @@
     5. 유저 장바구니 목록 조회
     6. 유저 장바구니 수량 카운트
 -->
+    <sql id="selectColumn">
+        cart_seq, user_id, prod_no, item_no, qty
+    </sql>
 <!--    장바구니 상품 저장-->
-    <insert id="insertCartProduct" parameterType="CartProductDto">
-        insert into CartProduct (user_id, cart_seq, prod_no, qty, reg_id, up_id)
-        values (#{userId}, #{cartSeq}, #{prodNo}, #{qty}, #{userId}, #{userId})
+    <insert id="insertCartItem" parameterType="CartItemDto">
+        insert into CartItem (cart_seq, user_id, prod_no, item_no, qty, reg_id, up_id)
+        values (#{cartSeq}, #{userId}, #{prodNo}, #{itemNo}, #{qty}, #{userId}, #{userId})
     </insert>
 
-<!--    유저의 장바구니 조회-->
-    <select id="selectUserCart" resultType="CartProductDto" parameterType="string">
-        select user_id, cart_seq, prod_no, qty
-        from CartProduct
+<!--    유저의 장바구니 목록 조회-->
+    <select id="selectUserCart" resultType="CartItemDto" parameterType="string">
+        select <include refid="selectColumn"/>
+        from CartItem
         where user_id = #{userId}
+        order by cart_seq desc
+    </select>
+
+<!--    이미 담긴 품목 조회-->
+    <select id="selectUserCartItem" resultType="CartItemDto" parameterType="CartItemDto">
+        select <include refid="selectColumn"/>
+        from CartItem
+        where user_id = #{userId}
+        and prod_no = #{prodNo}
+        and item_no = #{itemNo}
         order by cart_seq desc
     </select>
 
 <!--    유저의 장바구니 수량 카운트-->
     <select id="countUserCart" resultType="int" parameterType="string">
         select count(*)
-        from CartProduct
+        from CartItem
         where user_id = #{userId}
     </select>
 
-<!--    장바구니 상품 수량 변경-->
-    <update id="updateCartProductQty" parameterType="CartProductDto">
-        update CartProduct
-        set qty = #{qty},
+<!--    장바구니 품목 옵션/수량 변경-->
+    <update id="updateCartItem" parameterType="CartItemDto">
+        update CartItem
+        set item_no = #{itemNo},
+            qty = #{qty},
             up_id = #{userId},
             up_date = DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s')
-        where user_id = #{userId}
-        and cart_seq = #{cartSeq}
+        where cart_seq = #{cartSeq}
+        and user_id = #{userId}
     </update>
 
 <!--    유저의 장바구니 상품 삭제-->
-    <delete id="deleteCartProduct" parameterType="CartProductDto">
+    <delete id="deleteCartItem" parameterType="CartItemDto">
         delete
-        from CartProduct
-        where user_id = #{userId}
-        and cart_seq = #{cartSeq}
+        from CartItem
+        where cart_seq = #{cartSeq}
+        and user_id = #{userId}
     </delete>
 
 <!--    테스트 용-->
 <!--    전체 삭제-->
     <delete id="deleteAll">
         delete
-        from CartProduct
+        from CartItem
     </delete>
 
 <!--    전체 개수-->
     <select id="countAll" resultType="int">
         select count(*)
-        from CartProduct
+        from CartItem
     </select>
 
 <!--    전체 목록 조회-->
-    <select id="selectAll" resultType="CartProductDto">
-        select user_id, cart_seq, prod_no, qty
-        from CartProduct
+    <select id="selectAll" resultType="CartItemDto">
+        select <include refid="selectColumn"/>
+        from CartItem
     </select>
 </mapper>
