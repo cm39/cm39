@@ -1,5 +1,6 @@
 package com.cm39.cm39.user.service;
 
+import com.cm39.cm39.exception.user.AlreadyExistsUserException;
 import com.cm39.cm39.user.domain.UserDto;
 import com.cm39.cm39.user.mapper.UserMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,6 +38,47 @@ class UserDetailServiceImplTest {
         UserDto userDto = getUserDto();
         userDetailService.signup(userDto);
         assertEquals(countUser(), 1);
+    }
+
+    @DisplayName("회원 중복 예외 테스트")
+    @Test
+    void duplicateEmail() {
+        String userId = "test@test.com";
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime birth = LocalDateTime.of(2002, 1, 8, 0, 0, 0);
+
+        UserDto user1 = UserDto.builder()
+                .userId(userId)
+                .grdId("grade1")
+                .pwd("test1234!")
+                .userName("tester")
+                .birth(birth)
+                .gndr("F")
+                .telNo("01012345678")
+                .userStatCode("100")
+                .snsTypeCode("100")
+                .adInfoRcvAgrDate(now)
+                .regId(userId)
+                .upId(userId)
+                .build();
+
+        UserDto user2 = UserDto.builder()
+                .userId(userId)
+                .grdId("grade1")
+                .pwd("test1234!")
+                .userName("tester")
+                .birth(birth)
+                .gndr("F")
+                .telNo("01012345678")
+                .userStatCode("100")
+                .snsTypeCode("100")
+                .adInfoRcvAgrDate(now)
+                .regId(userId)
+                .upId(userId)
+                .build();
+
+        userDetailService.signup(user1);
+        assertThrows(AlreadyExistsUserException.class, () -> userDetailService.signup(user2));
     }
 
     // 모든 회원 수 반환

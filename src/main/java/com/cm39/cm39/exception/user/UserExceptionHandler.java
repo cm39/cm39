@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class UserExceptionHandler {
 
     // 이미 존재하는 계정
-    @ExceptionHandler(UserNotFoundException.class)
+    @ExceptionHandler(AlreadyExistsUserException.class)
     public ResponseEntity<String> handleAlreadyExistsUserException(AlreadyExistsUserException e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     }

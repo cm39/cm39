@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입</title>
+</head>
+
+<script>
+    // submit
+    function onSubmit(event) {
+        event.preventDefault();
+
+        // var formData = {
+        //     custId: document.getElementById('cust_id').value,
+        //     custChk: document.getElementById('cust_chk').value,
+        //     name: document.getElementById('name').value,
+        //     orderRequestMessage: document.getElementById('ord_req_msg').value,
+        //     pwd: null,
+        //     isAllEbook: document.getElementById('is_all_ebook').value,
+        //     isAllDawnDelivery: document.getElementById('is_all_dawn_delivery').value,
+        //     dlvDate: document.getElementById('dlv_date').value,
+        //     defaultChk: null,
+        //     totalProdBasePrice: document.getElementById('total_prod_base_price').value,
+        //     totalDiscPrice: document.getElementById('total_disc_price').value,
+        //     totalPayPrice: document.getElementById('total_pay_price').value,
+        //     dlvPrice: document.getElementById('dlv_price').value,
+        //     totalOrdQty: document.getElementById('total_ord_qty').value,
+        //     email: null,
+        //     addressName: document.getElementById('address_name').value,
+        //     telNum: document.getElementById('tel_num').value,
+        //     zipCode: document.getElementById('zip_code').value,
+        //     mainAddress: document.getElementById('main_address').value,
+        //     detailAddress: document.getElementById('detail_address').value,
+        //     commonEntrancePassword: document.getElementById('entrance_pwd').value,
+        //     paymentMethod: document.getElementById('pay_method').value,
+        //     productList: productList
+        // }
+        //
+        // if(custId == null || custId === '') {
+        //     // 비회원
+        //     formData.pwd = document.getElementById('non_cust_pwd').value;
+        //     formData.custId = document.getElementById('non_cust_email').value;
+        //     formData.email = document.getElementById('non_cust_email').value;
+        // } else {
+        //     // 회원
+        //     getCheckboxValue(event);
+        //     formData.defaultChk = document.getElementById('default_chk').value;
+        //     formData.email = document.getElementById('email').value
+        // }
+        //
+        // var jsonData = JSON.stringify(formData);
+        //
+        // console.log(jsonData);
+        //
+        // fetch('/payment/request', {
+        //     method: 'POST',
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //     },
+        //     body: jsonData
+        // })
+        //     .then(response => {
+        //         //
+        //     })
+        //     .then(data => {
+        //         console.log('Success:', data);
+        //         window.location.href = '/payment/request';
+        //     })
+        //     .catch(error => {
+        //         console.error(error);
+        //     });
+    }
+</script>
+
+<body>
+<!-- 약관 -->
+<div>
+    <div>
+        <input type="checkbox" id="mnt_trms_agr" value="mntTrmsAgrDate">
+        <label for="mnt_trms_agr">필수약관</label>
+    </div>
+    <div>
+        <input type="checkbox" id="prsnl_info_agr" value="prsnlInfoAgrDate">
+        <label for="prsnl_info_agr">개인정보수집약관</label>
+    </div>
+    <div>
+        <input type="checkbox" id="ad_info_rcv_agr" value="adInfoRcvAgrDate">
+        <label for="ad_info_rcv_agr">광고수신동의약관</label>
+    </div>
+</div>
+
+<!-- 이메일 -->
+<div>
+    <label for="email">이메일</label>
+    <input type="email" id="email">
+    <button id="send_code_btn">인증번호 전송하기</button>
+    <br>
+    <label for="verify_code">인증번호</label>
+    <input type="text" id="verify_code">
+    <button id="verify_code_btn">검증</button>
+</div>
+
+<!-- 비밀번호 -->
+<div>
+    <label for="password">비밀번호</label>
+    <input type="text" id="password">
+    <br>
+    <label for="reinput_password">비밀번호 재입력</label>
+    <input type="text" id="reinput_password">
+    <button id="verify_password">비밀번호 검증</button>
+</div>
+
+<button id="signup_btn" onsubmit="">가입하기</button>
+</body>
+
+</html>

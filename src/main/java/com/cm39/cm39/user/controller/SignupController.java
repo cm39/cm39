@@ -1,19 +1,20 @@
 package com.cm39.cm39.user.controller;
 
-import com.cm39.cm39.exception.user.UserException;
-import com.cm39.cm39.exception.user.UserExceptionMessage;
-import com.cm39.cm39.exception.user.UserVerifyException;
 import com.cm39.cm39.user.domain.UserDto;
 import com.cm39.cm39.user.service.MailService;
 import com.cm39.cm39.user.service.UserDetailService;
-import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
+@Validated
+@RequestMapping("/signup")
 @Controller
 public class SignupController {
 
@@ -23,25 +24,29 @@ public class SignupController {
     @Autowired
     private MailService mailService;
 
-    @GetMapping("/signup")
+    @GetMapping("/form")
     public String signupForm() {
+        return "/user/signup";
+    }
+
+    @PostMapping("/request")
+    public String signup(@Valid UserDto userDto) {
+        String userId = userDetailService.signup(userDto);
+        if (userId != null) {
+            // 회원가입 성공 화면으로 redirect
+            return "redirect:/signup/complete";
+        }
         return "signup";
     }
 
-    @PostMapping("/signup")
-    public void signup(UserDto userDto) {
-        userDetailService.signup(userDto);
-    }
-
-    @PostMapping("/signup/send-email")
+    @PostMapping("/send-email")
     public ResponseEntity<String> mailConfirm(String email) throws Exception {
         String verifyCode = mailService.sendEmail(email);
-        System.out.println("인증코드 : " + verifyCode);
         String message = "이메일 인증 메일이 전송되었습니다.";
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
-    @PostMapping("/signup/verify-code")
+    @PostMapping("/verify-code")
     public String verifyCode(String inputCode) {
         return mailService.verifyCode(inputCode) ? "인증 완료되었습니다." : "인증 실패하셨습니다.";
     }
