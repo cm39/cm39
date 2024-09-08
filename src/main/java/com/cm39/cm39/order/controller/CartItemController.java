@@ -10,6 +10,7 @@ import com.cm39.cm39.order.service.CartItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,7 +41,7 @@ public class CartItemController {
         int result = cartItemService.addCartItem(cartItemDto);
 
         if (result != 1)
-            throw new CartAddFailException();
+            throw new CartAddFailException("추가 실패");
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -56,7 +57,7 @@ public class CartItemController {
         int result = cartItemService.modifyCartItem(cartItemDto);
 
         if (result != 1)
-            throw new CartModifyFailException();
+            throw new CartModifyFailException("수정 실패");
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -72,7 +73,7 @@ public class CartItemController {
         int result = cartItemService.removeCartItem(cartItemDto);
 
         if (result != 1)
-            throw new CartRemoveFailException();
+            throw new CartRemoveFailException("삭제 실패");
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -106,6 +107,54 @@ public class CartItemController {
                         .builder()
                         .result("SUCCESS")
                         .data(result)
+                        .build());
+    }
+
+    // 잘못된 입력 값
+    @ExceptionHandler({MethodArgumentNotValidException.class})
+    public ResponseEntity<ApiResponse<?>> methodArgumentNotValidException(MethodArgumentNotValidException ex) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse
+                        .builder()
+                        .result("FAILED")
+                        .message(ex.getMessage())
+                        .build());
+    }
+
+    // 장바구니 품목 추가 실패
+    @ExceptionHandler({CartAddFailException.class})
+    public ResponseEntity<ApiResponse<?>> cartAddFailException(CartAddFailException ex) {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse
+                        .builder()
+                        .result("FAILED")
+                        .message(ex.getMessage())
+                        .build());
+    }
+
+    // 장바구니 품목 수정 실패
+    @ExceptionHandler({CartModifyFailException.class})
+    public ResponseEntity<ApiResponse<?>> cartModifyFailException(CartModifyFailException ex) {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse
+                        .builder()
+                        .result("FAILED")
+                        .message(ex.getMessage())
+                        .build());
+    }
+
+    // 장바구니 품목 삭제 실패
+    @ExceptionHandler({CartRemoveFailException.class})
+    public ResponseEntity<ApiResponse<?>> cartRemoveFailException(CartRemoveFailException ex) {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse
+                        .builder()
+                        .result("FAILED")
+                        .message(ex.getMessage())
                         .build());
     }
 }
