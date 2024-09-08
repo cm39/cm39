@@ -1,16 +1,19 @@
 package com.cm39.cm39.user.service;
 
 import com.cm39.cm39.exception.user.AlreadyExistsUserException;
+import com.cm39.cm39.exception.user.UserException;
 import com.cm39.cm39.exception.user.UserNotFoundException;
 import com.cm39.cm39.user.domain.UserDto;
 import com.cm39.cm39.user.mapper.UserMapper;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
 
 /*
  * 회원가입
@@ -24,46 +27,50 @@ import org.springframework.validation.annotation.Validated;
  * 6. DB 저장
  * */
 
-
 @Service
-public class UserDetailServiceImpl implements UserDetailService {
-
+public class UserService implements UserDetailsService, SignupService, LoginService {
     @Autowired
     private UserMapper userMapper;
 
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    // userId로 회원 정보 조회
-    public UserDto findUserByUserId(String userId) {
-        UserDto selectedUser = userMapper.selectUserByUserId(userId);
+    @Override
+    public UserDetails loadUserByUsername(String userId) {
+        UserDto userDto = userMapper.selectUserByUserId(userId);
 
-        if (selectedUser == null) {
-            // user not found
-            return null;
+        if (userDto != null) {
+            return userDto;
+        } else {
+            throw new UserNotFoundException("등록된 회원이 없습니다.");
         }
-
-        return selectedUser;
     }
 
-    // 회원가입
-    @Transactional
-    public String signup(UserDto userDto) {
-        if (userDto == null) {
-            throw new UserNotFoundException("회원 정보를 찾을 수 없습니다.");
-        }
-
-        // 이미 존재하는 계정인지 검증
-        UserDto selectedUser = findUserByUserId(userDto.getUserId());
+    @Override
+    public boolean checkDuplicationUserId(String userId) {
+        UserDto selectedUser = userMapper.selectUserByUserId(userId);
 
         if (selectedUser != null) {
-            throw new AlreadyExistsUserException(selectedUser.getSnsTypeCode() + " 이미 가입한 회원입니다.");
+            // 계정 존재
+            throw new AlreadyExistsUserException(selectedUser.getUserId() + " 이미 가입된 계정입니다.");
         }
+
+        return false;
+    }
+
+    @Override
+    public String signup(UserDto userDto) {
+        if (userDto == null) {
+            throw new UserException("회원 등록에 실패했습니다.");
+        }
+
+        // 중복 ID 체크
+        checkDuplicationUserId(userDto.getUserId());
 
         // 비밀번호 암호화
         userDto.setPwd(bCryptPasswordEncoder.encode(userDto.getPwd()));
 
-        // insert
+        // DB 저장
         userMapper.insertUser(userDto);
 
         return userDto.getUserId();

@@ -8,16 +8,15 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@DisplayName("회원 service 테스트")
 @SpringBootTest
-class UserDetailServiceImplTest {
+class UserServiceTest {
 
     @Autowired
     private UserService userService;
@@ -25,60 +24,49 @@ class UserDetailServiceImplTest {
     @Autowired
     private UserMapper userMapper;
 
-    // 모든 테스트 실행 전 회원 전체 삭제
+    String userId = "tester@test.com";
+
     @BeforeEach
     void deleteAllUser() {
         userMapper.deleteAllUser();
         assertEquals(countUser(), 0);
     }
 
-    @DisplayName("회원 추가")
     @Test
-    void insertUser() {
+    void loadUserByUsername() {
         UserDto userDto = getUserDto();
         userService.signup(userDto);
         assertEquals(countUser(), 1);
+
+        UserDetails userDetails = userService.loadUserByUsername(userId);
+        assertNotNull(userDetails);
+        assertEquals(userDto.getUserId(), userDetails.getUsername());
+        System.out.println(userDetails);
     }
 
-    @DisplayName("회원 중복 예외 테스트")
+    @DisplayName("중복 아이디 미존재 테스트")
     @Test
-    void duplicateEmail() {
-        String userId = "test@test.com";
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime birth = LocalDateTime.of(2002, 1, 8, 0, 0, 0);
+    void checkDuplicationUserId() {
+        boolean isDuplication = userService.checkDuplicationUserId(userId);
+        assertEquals(isDuplication, false);
 
-        UserDto user1 = UserDto.builder()
-                .userId(userId)
-                .grdId("grade1")
-                .pwd("test1234!")
-                .userName("tester")
-                .birth(birth)
-                .gndr("F")
-                .telNo("01012345678")
-                .userStatCode("100")
-                .snsTypeCode("100")
-                .adInfoRcvAgrDate(now)
-                .regId(userId)
-                .upId(userId)
-                .build();
+    }
 
-        UserDto user2 = UserDto.builder()
-                .userId(userId)
-                .grdId("grade1")
-                .pwd("test1234!")
-                .userName("tester")
-                .birth(birth)
-                .gndr("F")
-                .telNo("01012345678")
-                .userStatCode("100")
-                .snsTypeCode("100")
-                .adInfoRcvAgrDate(now)
-                .regId(userId)
-                .upId(userId)
-                .build();
+    @DisplayName("중복 아이디 존재 테스트")
+    @Test
+    void checkDuplicationUserIdTrueTest() {
+        UserDto userDto1 = getUserDto();
+        userService.signup(userDto1);
+        assertEquals(countUser(), 1);
 
-        userService.signup(user1);
-        assertThrows(AlreadyExistsUserException.class, () -> userService.signup(user2));
+        UserDto userDto2 = getUserDto();
+        assertThrows(AlreadyExistsUserException.class, () -> userService.signup(userDto2));
+    }
+
+    @Test
+    void signup() {
+        UserDto userDto = getUserDto();
+        userService.signup(userDto);
     }
 
     // 모든 회원 수 반환

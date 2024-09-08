@@ -6,15 +6,21 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.context.annotation.Description;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 @Builder(toBuilder = true)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDto {
+public class UserDto implements UserDetails {
     @NotBlank
     @Email
     @Size(max = 50)
@@ -54,4 +60,25 @@ public class UserDto {
     private String regId;
     private LocalDateTime upDate;
     private String upId;
+
+    // password 저장시 자동 암호화
+    public UserDto encodePassword(PasswordEncoder passwordEncoder) {
+        this.pwd = passwordEncoder.encode(this.pwd);
+        return this;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of();
+    }
+
+    @Override
+    public String getPassword() {
+        return this.pwd;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.userId;
+    }
 }

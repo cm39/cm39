@@ -2,7 +2,7 @@ package com.cm39.cm39.user.controller;
 
 import com.cm39.cm39.user.domain.UserDto;
 import com.cm39.cm39.user.service.MailService;
-import com.cm39.cm39.user.service.UserDetailService;
+import com.cm39.cm39.user.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class SignupController {
 
     @Autowired
-    private UserDetailService userDetailService;
+    private UserService userService;
 
     @Autowired
     private MailService mailService;
@@ -43,7 +43,7 @@ public class SignupController {
 
     @PostMapping("/request")
     public String signup(@Valid UserDto userDto) {
-        String userId = userDetailService.signup(userDto);
+        String userId = userService.signup(userDto);
         if (userId != null) {
             // 회원가입 성공 화면으로 redirect
             return "redirect:/signup/complete";
