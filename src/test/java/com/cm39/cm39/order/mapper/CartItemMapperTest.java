@@ -150,6 +150,47 @@ class CartItemMapperTest {
         assertEquals(0, cartItemMapper.countAll());
     }
 
+
+    @Test
+    @DisplayName("장바구니 저장 시 DataIntegrityVioletException 발생")
+    public void addCartExceptionFailTest() {
+        CartItemDto addItem = new CartItemDto();
+
+        // 필수 값이 없으면 예외가 발생하는지 확인
+        // 필수 값 : userId, prodNo, itemNo
+
+        // 모든 값이 없는 경우
+        assertThrows(DataIntegrityViolationException.class, () -> {
+            cartItemMapper.insertCartItem(addItem);
+        });
+
+        // userId만 있는 경우
+        addItem.setUserId(cartItem1.getUserId());
+        assertThrows(DataIntegrityViolationException.class, () -> {
+            cartItemMapper.insertCartItem(addItem);
+        });
+
+        // 초기화
+        cartItemMapper.deleteAll();
+        assertEquals(0, cartItemMapper.countAll());
+
+        // userId, prodNo만 있는 경우
+        addItem.setProdNo(cartItem1.getProdNo());
+        assertThrows(DataIntegrityViolationException.class, () -> {
+            cartItemMapper.insertCartItem(addItem);
+        });
+
+        // 초기화
+        cartItemMapper.deleteAll();
+        assertEquals(0, cartItemMapper.countAll());
+
+        // userId, prodNo, itemNo만 있는 경우
+        addItem.setItemNo(cartItem1.getItemNo());
+        assertThrows(DataIntegrityViolationException.class, () -> {
+            cartItemMapper.insertCartItem(addItem);
+        });
+    }
+
     /*
         조회 테스트
         성공 케이스

@@ -12,7 +12,7 @@ public interface CartItemMapper {
     // 회원 장바구니 조회
     List<CartItemDto> selectUserCart(String userId);
     // 회원 장바구니 조회
-    List<CartItemDto> selectUserCartItem(CartItemDto cartItemDto);
+    CartItemDto selectUserCartItem(CartItemDto cartItemDto);
     // 회원 장바구니 수량 조회
     int countUserCart(String userId);
     // 상품 수량 변경
