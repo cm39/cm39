@@ -8,23 +8,21 @@ import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
 @Data
-@Builder
+@Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 public class CartItemDto {
+    static final int MAX_QTY = 100;
+    static final int MIN_QTY = 1;
+
     private Integer cartSeq;            // 장바구니 번호
-
-    @NotBlank
     private String userId;              // 유저 아이디
-
-    @NotBlank
     private String  prodNo;             // 상품 번호
 
     @NotBlank
     private String itemNo;              // 품목 번호
 
     @NotNull
-    @Min(value = 1, message = "1 이하는 선택 불가능 합니다.")
-    @Max(value = 100, message = "100 이상은 선택 불가능 합니다.")
+    @Min(value = MIN_QTY, message = "1 이하는 선택 불가능 합니다.")
     private Integer qty;                // 상품 수량
 }

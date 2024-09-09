@@ -39,25 +39,37 @@ public class CartItemService {
     public int modifyQty(CartItemDto cartItemDto, int addQty){
         // 기존 수량 + addQty
         cartItemDto.setQty(cartItemDto.getQty() + addQty);
+
+        // qty 검증
+        validateQty(cartItemDto);
+
         return cartItemMapper.updateCartItem(cartItemDto);
     }
 
+    public void validateQty(CartItemDto cartItemDto){
+        if(cartItemDto.getQty() > 100)
+            cartItemDto.setQty(100);
+    }
+
     // 장바구니 품목 수정
-    @Transactional
     public int modifyCartItem(CartItemDto modifyItem){
         // 1. 변경하려는 옵션의 같은 품목 조회
         CartItemDto existItemDto = cartItemMapper.selectUserCartItem(modifyItem);
 
-        // 1-1. 없으면 수정
-        if (existItemDto == null)
-            return cartItemMapper.updateCartItem(modifyItem);
+        // 2. 있으면 기존 품목 수량 변경 후 삭제
+        if (existItemDto != null){
+            // 기존 품목 수량 수정
+            modifyQty(existItemDto, modifyItem.getQty());
 
-        // 1-2 있으면 수량만 변경
-        return modifyQty(existItemDto, modifyItem.getQty());
+            // 삭제
+            return cartItemMapper.deleteCartItem(modifyItem);
+        }
+
+        // 3. 없으면 수정
+        return cartItemMapper.updateCartItem(modifyItem);
     }
 
     // 장바구니 품목 삭제
-    @Transactional
     public int removeCartItem(CartItemDto removeItem) {
         // 기존 품목 삭제
         return cartItemMapper.deleteCartItem(removeItem);

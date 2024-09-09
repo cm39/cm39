@@ -7,6 +7,7 @@ import com.cm39.cm39.order.exception.CartAddFailException;
 import com.cm39.cm39.order.exception.CartModifyFailException;
 import com.cm39.cm39.order.exception.CartRemoveFailException;
 import com.cm39.cm39.order.service.CartItemService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static com.cm39.cm39.order.exception.CartExceptionMessage.*;
 
 @RestController
 public class CartItemController {
@@ -37,11 +40,11 @@ public class CartItemController {
      */
 
     @PostMapping("/cart-item")
-    public ResponseEntity<ApiResponse<?>> addCartItem(CartItemDto cartItemDto){
+    public ResponseEntity<ApiResponse<?>> addCartItem(@Valid CartItemDto cartItemDto){
         int result = cartItemService.addCartItem(cartItemDto);
 
         if (result != 1)
-            throw new CartAddFailException("추가 실패");
+            throw new CartAddFailException(FAIL_ADD_CART_ITEM.getMessage());
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -53,11 +56,11 @@ public class CartItemController {
     }
 
     @PatchMapping("/cart-item")
-    public ResponseEntity<ApiResponse<?>> modifyCartItem(CartItemDto cartItemDto){
+    public ResponseEntity<ApiResponse<?>> modifyCartItem(@Valid CartItemDto cartItemDto){
         int result = cartItemService.modifyCartItem(cartItemDto);
 
         if (result != 1)
-            throw new CartModifyFailException("수정 실패");
+            throw new CartModifyFailException(FAIL_MODIFY_CART_ITEM.getMessage());
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -69,11 +72,11 @@ public class CartItemController {
     }
 
     @DeleteMapping("cart-item")
-    public ResponseEntity<ApiResponse<?>> removeCartItem(CartItemDto cartItemDto){
+    public ResponseEntity<ApiResponse<?>> removeCartItem(@Valid CartItemDto cartItemDto){
         int result = cartItemService.removeCartItem(cartItemDto);
 
         if (result != 1)
-            throw new CartRemoveFailException("삭제 실패");
+            throw new CartRemoveFailException(FAIL_REMOVE_CART_ITEM.getMessage());
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -118,7 +121,7 @@ public class CartItemController {
                 .body(ApiResponse
                         .builder()
                         .result("FAILED")
-                        .message(ex.getMessage())
+                        .message(ex.getBindingResult().getAllErrors().get(0).getDefaultMessage())
                         .build());
     }
 
