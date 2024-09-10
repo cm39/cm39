@@ -10,6 +10,13 @@
         where user_id = #{userId}
     </select>
 
+    <!--    refreshToken으로 회원 정보 조회-->
+    <select id="selectUserByRefreshToken" resultType="UserDto" parameterType="String">
+        select *
+        from cm39.User
+        where refresh_token = #{refreshToken}
+    </select>
+
     <!--    모든 회원 정보 조회-->
     <select id="selectAllUser" resultType="UserDto">
         select *

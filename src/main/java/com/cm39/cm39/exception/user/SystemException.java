@@ -1,7 +1,8 @@
-package com.cm39.cm39.exception;
+package com.cm39.cm39.exception.user;
 
-// DB 작업 실패
-public class SystemException extends RuntimeException {
+import com.cm39.cm39.exception.BaseException;
+
+public class SystemException extends BaseException {
     public SystemException(String message) {
         super(message);
     }

@@ -15,6 +15,8 @@ public interface UserMapper {
 
     List<UserDto> selectAllUser();
 
+    UserDto selectUserByRefreshToken(String refreshToken);
+
     // update
 
     // delete

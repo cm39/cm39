@@ -1,18 +1,13 @@
 package com.cm39.cm39.user.service;
 
-import com.cm39.cm39.exception.user.AlreadyExistsUserException;
 import com.cm39.cm39.exception.user.UserException;
-import com.cm39.cm39.exception.user.UserNotFoundException;
+import com.cm39.cm39.exception.user.UserExceptionMessage;
 import com.cm39.cm39.user.domain.UserDto;
 import com.cm39.cm39.user.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 /*
@@ -28,7 +23,8 @@ import org.springframework.stereotype.Service;
  * */
 
 @Service
-public class UserService implements UserDetailsService, SignupService, LoginService {
+public class UserServiceImpl implements UserDetailsService, SignupService, LoginService {
+
     @Autowired
     private UserMapper userMapper;
 
@@ -38,37 +34,27 @@ public class UserService implements UserDetailsService, SignupService, LoginServ
     @Override
     public UserDetails loadUserByUsername(String userId) {
         UserDto userDto = userMapper.selectUserByUserId(userId);
-
-        if (userDto != null) {
-            return userDto;
-        } else {
-            throw new UserNotFoundException("등록된 회원이 없습니다.");
-        }
+        if (userDto == null) throw new UserException(UserExceptionMessage.ACCOUNT_NOT_FOUND.getMessage());
+        return userDto;
     }
 
     @Override
-    public boolean checkDuplicationUserId(String userId) {
+    public void checkDuplicationUserId(String userId) {
         UserDto selectedUser = userMapper.selectUserByUserId(userId);
-
         if (selectedUser != null) {
-            // 계정 존재
-            throw new AlreadyExistsUserException(selectedUser.getUserId() + " 이미 가입된 계정입니다.");
+            throw new UserException(selectedUser.getUserId() + " 이미 가입된 계정입니다.");
         }
-
-        return false;
     }
 
     @Override
     public String signup(UserDto userDto) {
-        if (userDto == null) {
-            throw new UserException("회원 등록에 실패했습니다.");
-        }
+        if (userDto == null) throw new UserException(UserExceptionMessage.ACCOUNT_NOT_FOUND.getMessage());
 
         // 중복 ID 체크
         checkDuplicationUserId(userDto.getUserId());
 
         // 비밀번호 암호화
-        userDto.setPwd(bCryptPasswordEncoder.encode(userDto.getPwd()));
+//        userDto.setPwd(bCryptPasswordEncoder.encode(userDto.getPwd()));
 
         // DB 저장
         userMapper.insertUser(userDto);

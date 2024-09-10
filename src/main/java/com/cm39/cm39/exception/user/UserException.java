@@ -1,7 +1,8 @@
 package com.cm39.cm39.exception.user;
 
-// 회원에서 발생하는 예외의 최상위 클래스
-public class UserException extends RuntimeException {
+import com.cm39.cm39.exception.BaseException;
+
+public class UserException extends BaseException {
     public UserException(String message) {
         super(message);
     }

@@ -1,6 +1,5 @@
 package com.cm39.cm39.user.service;
 
-import com.cm39.cm39.exception.user.AlreadyExistsUserException;
 import com.cm39.cm39.user.domain.UserDto;
 import com.cm39.cm39.user.mapper.UserMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,16 +10,16 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DisplayName("회원 service 테스트")
 @SpringBootTest
 class UserDetailServiceImplTest {
 
     @Autowired
-    private UserService userService;
+    private UserServiceImpl userServiceImpl;
 
     @Autowired
     private UserMapper userMapper;
@@ -36,7 +35,7 @@ class UserDetailServiceImplTest {
     @Test
     void insertUser() {
         UserDto userDto = getUserDto();
-        userService.signup(userDto);
+        userServiceImpl.signup(userDto);
         assertEquals(countUser(), 1);
     }
 
@@ -77,8 +76,8 @@ class UserDetailServiceImplTest {
                 .upId(userId)
                 .build();
 
-        userService.signup(user1);
-        assertThrows(AlreadyExistsUserException.class, () -> userService.signup(user2));
+        userServiceImpl.signup(user1);
+        assertThrows(AlreadyExistsUserException.class, () -> userServiceImpl.signup(user2));
     }
 
     // 모든 회원 수 반환

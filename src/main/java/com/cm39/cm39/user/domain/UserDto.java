@@ -25,20 +25,29 @@ public class UserDto implements UserDetails {
     @Email
     @Size(max = 50)
     private String userId;
+    @Size(max = 50)
     private String grdId;
     @NotNull
     @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[~!@#$%^&*()+|=])[A-Za-z\\d~!@#$%^&*()+|=]{8,16}$")
+    @Size(max = 500)
     private String pwd;
+    @Size(max = 1000)
+    private String refreshToken;
     @NotBlank
+    @Size(max = 50)
     private String userName;
     @NotNull
     @Past
     private LocalDateTime birth;
     @NotBlank
+    @Size(max = 1)
     private String gndr;
     @NotBlank
+    @Size(max = 50)
     private String telNo;
+    @Size(max = 50)
     private String userStatCode;
+    @Size(max = 50)
     private String snsTypeCode;
     @NotNull
     @PastOrPresent
@@ -49,23 +58,23 @@ public class UserDto implements UserDetails {
     @NotNull
     @PastOrPresent
     private LocalDateTime adInfoRcvAgrDate; // 광고수신동의약관
+    @Size(max = 30)
     private String zpcd;
+    @Size(max = 100)
     private String mainAddr;
+    @Size(max = 100)
     private String detailAddr;
+    @Size(max = 50)
     private String rcntPayTypeCode;
     private LocalDateTime signupDate;
     private LocalDateTime wdrwDate;
     private LocalDateTime rcntLoginDate;
     private LocalDateTime regDate;
+    @Size(max = 50)
     private String regId;
     private LocalDateTime upDate;
+    @Size(max = 50)
     private String upId;
-
-    // password 저장시 자동 암호화
-    public UserDto encodePassword(PasswordEncoder passwordEncoder) {
-        this.pwd = passwordEncoder.encode(this.pwd);
-        return this;
-    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -80,5 +89,10 @@ public class UserDto implements UserDetails {
     @Override
     public String getUsername() {
         return this.userId;
+    }
+
+    // jwt 토큰
+    public void destroyRefreshToken() {
+        this.refreshToken = null;
     }
 }
