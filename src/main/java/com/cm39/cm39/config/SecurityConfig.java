@@ -10,6 +10,7 @@ import com.cm39.cm39.user.mapper.UserMapper;
 import com.cm39.cm39.user.service.JwtService;
 import com.cm39.cm39.user.service.UserServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -62,7 +63,18 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthenticationProcessingFilter(), JsonUsernamePasswordAuthenticationFilter.class)
                 // logout
                 .logout((logout) -> logout
+                        .logoutUrl("/logout")
                         .logoutSuccessUrl("/login")
+                        .addLogoutHandler(((request, response, authentication) -> {
+                            // session invalidate
+                            HttpSession session = request.getSession();
+                            session.invalidate();
+
+                            // destroy refresh token
+                            String accessToken = jwtService.extractAccessToken(request);
+                            String userId = jwtService.extractUserId(accessToken);
+                            jwtService.destroyRefreshToken(userId);
+                        }))
                         .invalidateHttpSession(true))
                 // stateless
                 .sessionManagement(session -> session

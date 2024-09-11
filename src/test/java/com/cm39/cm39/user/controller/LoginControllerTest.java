@@ -15,6 +15,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -53,5 +55,16 @@ public class LoginControllerTest {
                         .header("roles", List.of(Role.ADMIN.getValue()))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
+    }
+
+    @DisplayName("로그아웃 성공 테스트")
+    @Test
+    public void testLogout() throws Exception {
+        mockMvc.perform(post("/logout")
+                        .header("Authorization", BEARER + accessToken)
+                        .header("roles", List.of(Role.ADMIN.getValue()))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/login"));
     }
 }
