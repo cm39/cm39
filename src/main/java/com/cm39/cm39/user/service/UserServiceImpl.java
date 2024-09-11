@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
  * */
 
 @Service
-public class UserServiceImpl implements UserDetailsService, SignupService, LoginService {
+public class UserServiceImpl implements UserDetailsService, SignupService {
 
     @Autowired
     private UserMapper userMapper;
@@ -54,7 +54,7 @@ public class UserServiceImpl implements UserDetailsService, SignupService, Login
         checkDuplicationUserId(userDto.getUserId());
 
         // 비밀번호 암호화
-//        userDto.setPwd(bCryptPasswordEncoder.encode(userDto.getPwd()));
+        userDto.setPwd(bCryptPasswordEncoder.encode(userDto.getPwd()));
 
         // DB 저장
         userMapper.insertUser(userDto);

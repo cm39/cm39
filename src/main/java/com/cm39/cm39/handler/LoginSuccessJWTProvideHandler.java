@@ -29,15 +29,15 @@ public class LoginSuccessJWTProvideHandler extends SimpleUrlAuthenticationSucces
         String accessToken = jwtService.createAccessToken(userId);
         String refreshToken = jwtService.createRefreshToken();
 
-        jwtService.sendAccessAndRefreshToken(response, accessToken, refreshToken);
+        jwtService.sendAccessAndRefreshToken(response, userId, accessToken, refreshToken);
         UserDto selectedUser = userMapper.selectUserByUserId(userId);
-        if(selectedUser != null) {
+        if (selectedUser != null) {
             selectedUser.setRefreshToken(refreshToken);
         }
 
-        log.info( "로그인에 성공합니다. userId: {}" , userId);
-        log.info( "AccessToken 을 발급합니다. AccessToken: {}" ,accessToken);
-        log.info( "RefreshToken 을 발급합니다. RefreshToken: {}" ,refreshToken);
+        log.info("로그인에 성공합니다. userId: {}", userId);
+        log.info("AccessToken 을 발급합니다. AccessToken: {}", accessToken);
+        log.info("RefreshToken 을 발급합니다. RefreshToken: {}", refreshToken);
 
         response.getWriter().write("success");
     }

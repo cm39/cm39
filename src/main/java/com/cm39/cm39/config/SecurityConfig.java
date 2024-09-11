@@ -51,10 +51,11 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 // 권한 설정
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/signup/**", "/", "/login/**")
+                        // 인증 불필요
+                        .requestMatchers("/signup", "/", "/login/form")
                         .permitAll()
                         .anyRequest()
-                        .authenticated()
+                        .hasRole("USER")
                 )
                 // custom filter
                 .addFilterAfter(jsonUsernamePasswordAuthenticationFilter(), LogoutFilter.class)

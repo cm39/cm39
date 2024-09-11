@@ -24,7 +24,7 @@ import java.util.List;
 public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
-    private final List<String> NO_CHECK_URLS = List.of("/login/**", "/signup/**");
+    private final List<String> NO_CHECK_URLS = List.of("/login/form", "/", "/signup/**");
     private final JwtService jwtService;
     private final UserMapper userMapper;
     private final GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
@@ -89,11 +89,11 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
         }
     }
 
-    // save authentication to context
     private void saveAuthentication(UserDto userDto) {
         UserDto user = UserDto.builder()
                 .userId(userDto.getUsername())
                 .pwd(userDto.getPassword())
+                .role(userDto.getRole()) // 권한
                 .build();
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, authoritiesMapper.mapAuthorities(user.getAuthorities()));

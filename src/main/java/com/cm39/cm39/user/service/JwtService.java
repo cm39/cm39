@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletResponse;
 public interface JwtService {
     // create
     String createAccessToken(String userId);
+
     String createRefreshToken();
 
     // update
@@ -15,19 +16,22 @@ public interface JwtService {
     void destroyRefreshToken(String userId);
 
     // send
-    void sendAccessAndRefreshToken(HttpServletResponse response, String accessToken, String refreshToken);
+    void sendAccessAndRefreshToken(HttpServletResponse response, String userId, String accessToken, String refreshToken);
+
     void sendAccessToken(HttpServletResponse response, String accessToken);
 
     // extract
     String extractAccessToken(HttpServletRequest request);
+
     String extractRefreshToken(HttpServletRequest request);
+
     String extractUserId(String accessToken);
 
     // set
     void setAccessTokenHeader(HttpServletResponse response, String accessToken);
-    void setRefreshTokenHeader(HttpServletResponse response, String refreshToken);
+
+    void setRefreshTokenHeader(HttpServletResponse response, String userId, String refreshToken);
 
     // validation
-    boolean isTokenValid(String token);
-
+    void isTokenValid(String token);
 }

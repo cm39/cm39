@@ -2,9 +2,11 @@ package com.cm39.cm39.user.service;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.cm39.cm39.exception.user.TokenException;
 import com.cm39.cm39.exception.user.UserException;
 import com.cm39.cm39.exception.user.UserExceptionMessage;
+import com.cm39.cm39.user.domain.Role;
 import com.cm39.cm39.user.domain.UserDto;
 import com.cm39.cm39.user.mapper.UserMapper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Transactional
@@ -25,7 +28,7 @@ public class JwtServiceImpl implements JwtService {
     private static final String ACCESS_TOKEN_SUBJECT = "AccessToken";
     private static final String REFRESH_TOKEN_SUBJECT = "RefreshToken";
     private static final String USERID_CLAIM = "userId";
-    private static final String BEARER = "Bearer";
+    private static final String BEARER = "Bearer ";
     // secret key
     @Value("${jwt.secret}")
     private String secret;
@@ -47,6 +50,7 @@ public class JwtServiceImpl implements JwtService {
                 .withSubject(ACCESS_TOKEN_SUBJECT) // jwt subject 지정
                 .withExpiresAt(new Date(System.currentTimeMillis() + accessTokenValiditySeconds)) // 만료시간 설정 (accessTokenValiditySeconds 시간 후에 만료)
                 .withClaim(USERID_CLAIM, userId) // claim 추가
+                .withClaim("roles", List.of(Role.ADMIN.getValue()))
                 .sign(Algorithm.HMAC512(secret)); // HMAC512 알고리즘으로 암호화
     }
 
@@ -67,6 +71,7 @@ public class JwtServiceImpl implements JwtService {
             throw new UserException(UserExceptionMessage.ACCOUNT_NOT_FOUND.getMessage());
         }
         userDto.setRefreshToken(refreshToken);
+        updateUserRefreshToken(userId, refreshToken);
     }
 
     // request token 제거 - 로그아웃
@@ -77,15 +82,17 @@ public class JwtServiceImpl implements JwtService {
             throw new UserException(UserExceptionMessage.ACCOUNT_NOT_FOUND.getMessage());
         }
         userDto.destroyRefreshToken();
+        updateUserRefreshToken(userId, null);
     }
 
     // access token, request token 발급 - 로그인
     @Override
-    public void sendAccessAndRefreshToken(HttpServletResponse response, String accessToken, String refreshToken) {
+    public void sendAccessAndRefreshToken(HttpServletResponse response, String userId, String accessToken, String refreshToken) {
         response.setStatus(HttpServletResponse.SC_OK);
 
         setAccessTokenHeader(response, accessToken);
-        setRefreshTokenHeader(response, refreshToken);
+        setRefreshTokenHeader(response, userId, refreshToken);
+        updateUserRefreshToken(userId, refreshToken);
 
         Map<String, String> tokenMap = new HashMap<>();
         tokenMap.put(ACCESS_TOKEN_SUBJECT, accessToken);
@@ -108,8 +115,11 @@ public class JwtServiceImpl implements JwtService {
     public String extractAccessToken(HttpServletRequest request) {
         String accessToken = request.getHeader(accessHeader);
 
-        if (accessToken != null && accessToken.startsWith(BEARER) && isTokenValid(accessToken)) {
-            return accessToken;
+        if (accessToken != null && accessToken.startsWith(BEARER)) {
+            String token = accessToken.substring(BEARER.length());
+            isTokenValid(token);
+            userIdValid(token);
+            return token;
         }
 
         return null;
@@ -120,8 +130,10 @@ public class JwtServiceImpl implements JwtService {
     public String extractRefreshToken(HttpServletRequest request) {
         String refreshToken = request.getHeader(refreshHeader);
 
-        if (refreshToken != null && refreshToken.startsWith(BEARER) && isTokenValid(refreshToken)) {
-            return refreshToken;
+        if (refreshToken != null && refreshToken.startsWith(BEARER)) {
+            String token = refreshToken.substring(BEARER.length());
+            isTokenValid(token);
+            return token;
         }
 
         return null;
@@ -131,6 +143,9 @@ public class JwtServiceImpl implements JwtService {
     @Override
     public String extractUserId(String accessToken) {
         try {
+            isTokenValid(accessToken);
+            userIdValid(accessToken);
+
             return JWT.require(Algorithm.HMAC512(secret))
                     .build()
                     .verify(accessToken)
@@ -144,22 +159,40 @@ public class JwtServiceImpl implements JwtService {
     // access token add header
     @Override
     public void setAccessTokenHeader(HttpServletResponse response, String accessToken) {
-        response.setHeader(accessHeader, accessToken);
+        response.setHeader(accessHeader, BEARER + accessToken);
     }
 
     // refresh token add header
     @Override
-    public void setRefreshTokenHeader(HttpServletResponse response, String refreshToken) {
+    public void setRefreshTokenHeader(HttpServletResponse response, String userId, String refreshToken) {
         response.setHeader(refreshHeader, refreshToken);
+    }
+
+    // update db
+    public void updateUserRefreshToken(String userId, String refreshToken) {
+        Map params = new HashMap();
+        params.put("userId", userId);
+        params.put("refreshToken", refreshToken);
+        params.put("upId", userId);
+        userMapper.updateRefreshToken(params);
     }
 
     // token 검증
     @Override
-    public boolean isTokenValid(String token) {
+    public void isTokenValid(String token) {
         try {
-            JWT.require(Algorithm.HMAC512(secret)).build().verify(token);
-            return true;
+            DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC512(secret)).build().verify(token);
         } catch (Exception e) {
+            throw new TokenException(UserExceptionMessage.INVALID_VERIFY_TOKEN.getMessage());
+        }
+    }
+
+    // user id 클레임 검증
+    public void userIdValid(String token) {
+        DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC512(secret)).build().verify(token);
+        // userId 클레임이 있는지 확인
+        String userId = decodedJWT.getClaim(USERID_CLAIM).asString();
+        if (userId == null || userId.isEmpty()) {
             throw new TokenException(UserExceptionMessage.INVALID_VERIFY_TOKEN.getMessage());
         }
     }

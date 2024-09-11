@@ -1,20 +1,17 @@
 package com.cm39.cm39.user.domain;
 
-import com.cm39.cm39.validator.NotFutureDate;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.context.annotation.Description;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
-import java.util.List;
 
 @Builder(toBuilder = true)
 @Data
@@ -33,6 +30,7 @@ public class UserDto implements UserDetails {
     private String pwd;
     @Size(max = 1000)
     private String refreshToken;
+    private String role = "ROLE_USER";
     @NotBlank
     @Size(max = 50)
     private String userName;
@@ -78,7 +76,12 @@ public class UserDto implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        Collection<GrantedAuthority> authorities = new ArrayList<>();
+
+        for (String role : role.split(",")) {
+            authorities.add(new SimpleGrantedAuthority(role));
+        }
+        return authorities;
     }
 
     @Override

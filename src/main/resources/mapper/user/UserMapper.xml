@@ -36,6 +36,14 @@
                 DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s'), #{upId})
     </insert>
 
+    <update id="updateRefreshToken" parameterType="map">
+        UPDATE cm39.User
+        SET refresh_token = #{refreshToken},
+            up_date       = DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s'),
+            up_id         = #{upId}
+        WHERE user_id = #{userId}
+    </update>
+
     <!--    회원 전체 삭제-->
     <delete id="deleteAllUser">
         delete
