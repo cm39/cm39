@@ -1,37 +1,118 @@
 package com.cm39.cm39.config;
 
+//import com.cm39.cm39.filter.JsonUsernamePasswordAuthenticationFilter;
+
+import com.cm39.cm39.filter.JsonUsernamePasswordAuthenticationFilter;
+import com.cm39.cm39.filter.JwtAuthenticationProcessingFilter;
+import com.cm39.cm39.handler.LoginFailureHandler;
+import com.cm39.cm39.handler.LoginSuccessJWTProvideHandler;
+import com.cm39.cm39.user.mapper.UserMapper;
+import com.cm39.cm39.user.service.JwtService;
+import com.cm39.cm39.user.service.UserServiceImpl;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    @Autowired
+    private UserServiceImpl userServiceImpl;
+
+    @Autowired
+    private UserMapper userMapper;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Autowired
+    private PasswordEncoderConfig passwordEncoder;
+
+    @Autowired
+    private JwtService jwtService;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .authorizeRequests(authorize -> authorize // HTTP 요청 보안 규칙 설정
-                        .requestMatchers("/login/**") // 인증요구 x
-                        .permitAll())
-//                        .anyRequest() // 나머지 모든 요청에 대해 인증 요구
-//                        .authenticated()
-                .formLogin(formLogin -> formLogin // 폼 기반 로그인 설정 활성화
-                        .loginPage("/login") // 인증되지 않은 사용자가 보호된 리소스에 접근하고자 할 때 리디렉션될 페이지 URL
-                        .permitAll()) // 로그인 페이지에 대한 접근을 모든 사용자에게 허용
-                .rememberMe(Customizer.withDefaults()); // 사용자가 애플리케이션을 닫고 다시 열어도 로그인 유지하도록
-
-        return http.build(); // spring security의 기본 설정 제공
+        return http
+                .csrf(AbstractHttpConfigurer::disable)
+                // jwt 로그인
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
+                // 권한 설정
+                .authorizeHttpRequests((authorize) -> authorize
+                        // 인증 불필요
+                        .requestMatchers("/signup", "/", "/login/form")
+                        .permitAll()
+                        .anyRequest()
+                        .hasRole("USER")
+                )
+                // custom filter
+                .addFilterAfter(jsonUsernamePasswordAuthenticationFilter(), LogoutFilter.class)
+                .addFilterBefore(jwtAuthenticationProcessingFilter(), JsonUsernamePasswordAuthenticationFilter.class)
+                // logout
+                .logout((logout) -> logout
+                        .logoutSuccessUrl("/login")
+                        .invalidateHttpSession(true))
+                // stateless
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .build();
     }
 
-    // 비밀번호 해시화 및 비교
+    // provider
     @Bean
-    public BCryptPasswordEncoder passwordEncoder() {
-        // BCrypt - 암호화 알고리즘
-        return new BCryptPasswordEncoder();
+    public DaoAuthenticationProvider daoAuthenticationProvider() {
+        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
+
+        daoAuthenticationProvider.setUserDetailsService(userServiceImpl);
+        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder.passwordEncoder());
+
+        return daoAuthenticationProvider;
+    }
+
+    // manager
+    @Bean
+    public AuthenticationManager authenticationManager() {
+        DaoAuthenticationProvider provider = daoAuthenticationProvider();
+        return new ProviderManager(provider);
+    }
+
+    // handler
+    @Bean
+    public LoginSuccessJWTProvideHandler loginSuccessJWTProvideHandler() {
+        return new LoginSuccessJWTProvideHandler();
+    }
+
+    @Bean
+    public LoginFailureHandler loginFailureHandler() {
+        return new LoginFailureHandler();
+    }
+
+    // custom filter - json type request
+    @Bean
+    public JsonUsernamePasswordAuthenticationFilter jsonUsernamePasswordAuthenticationFilter() {
+        JsonUsernamePasswordAuthenticationFilter jsonUsernamePasswordLoginFilter = new JsonUsernamePasswordAuthenticationFilter(objectMapper);
+        jsonUsernamePasswordLoginFilter.setAuthenticationManager(authenticationManager());
+        jsonUsernamePasswordLoginFilter.setAuthenticationSuccessHandler(loginSuccessJWTProvideHandler());
+        jsonUsernamePasswordLoginFilter.setAuthenticationFailureHandler(loginFailureHandler());
+        return jsonUsernamePasswordLoginFilter;
+    }
+
+    // custom filter - token 발급
+    @Bean
+    public JwtAuthenticationProcessingFilter jwtAuthenticationProcessingFilter() {
+        JwtAuthenticationProcessingFilter jsonUsernamePasswordLoginFilter = new JwtAuthenticationProcessingFilter(jwtService, userMapper);
+        return jsonUsernamePasswordLoginFilter;
     }
 }

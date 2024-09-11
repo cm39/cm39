@@ -1,13 +1,25 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
+
 <body>
-<h3>login</h3>
+<h3>로그인</h3>
+<form action="/login" method="post">
+    <div>
+        <p>아이디 : </p>
+        <input type="text" name="userId" placeholder="ID를 입력하세요.">
+        <p>비밀번호 : </p>
+        <input type="text" name="password" placeholder="비밀번호를 입력하세요.">
+        <br>
+        <br>
+        <button>로그인</button>
+    </div>
+</form>
 </body>
+
 </html>

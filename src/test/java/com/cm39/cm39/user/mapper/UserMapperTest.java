@@ -46,7 +46,7 @@ class UserMapperTest {
         assertEquals(userDto.getUserId(), selectedUser.getUserId());
         assertEquals(userDto.getPwd(), selectedUser.getPwd());
         assertEquals(userDto.getGrdId(), selectedUser.getGrdId());
-        assertEquals(userDto.getUserName(), selectedUser.getUserName());
+        assertEquals(userDto.getUsername(), selectedUser.getUsername());
         assertEquals(userDto.getBirth(), selectedUser.getBirth());
         assertEquals(userDto.getGndr(), selectedUser.getGndr());
         assertEquals(userDto.getTelNo(), selectedUser.getTelNo());

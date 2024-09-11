@@ -2,15 +2,12 @@ package com.cm39.cm39.user.controller;
 
 import com.cm39.cm39.user.domain.UserDto;
 import com.cm39.cm39.user.mapper.UserMapper;
-import com.cm39.cm39.user.service.MailService;
-import com.cm39.cm39.user.service.UserDetailService;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.time.LocalDateTime;
 
