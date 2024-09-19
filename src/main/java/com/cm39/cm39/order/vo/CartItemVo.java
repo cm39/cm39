@@ -1,15 +1,12 @@
-package com.cm39.cm39.order.dto;
+package com.cm39.cm39.order.vo;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
+@Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CartListDto {
+public class CartItemVo {
     /*
         브랜드명
         배송비

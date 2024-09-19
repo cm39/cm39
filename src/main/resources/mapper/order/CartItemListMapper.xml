@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.cm39.cm39.order.mapper.CartListMapper">
+<mapper namespace="com.cm39.cm39.order.mapper.CartItemListMapper">
     <!--
         장바구니 목록에 필요한 정보
         1. 상품 이미지   ProductImage
@@ -13,8 +13,17 @@
         6. 수량       Cart
         7. 배송비      브랜드 테이블(브랜드 배송정책 테이블?)에 추가 필요
         8. 할인정보     ProductDiscount
+
+        #### 추가 필요
+        진열 여부
+        판매 가능 여부
+        재고 수량
+        최소 주문 가능 수량
+        최대 주문 가능 수량
+        추가 금액
     -->
-    <select id="selectUserCart" resultType="CartListDto" parameterType="string">
+
+    <select id="selectUserCart" resultType="CartItemVo" parameterType="string">
         select
             b.brand_id, b.brand_name, ci.cart_seq, ci.user_id, ci.prod_no, ci.item_no, img.img_path, p.prod_name, i.item_name, p.base_price, ci.qty, pd.disc_rate
         from cartitem ci, item i, product p, productimage pi, image img, brand b, productdiscount pd

@@ -1,9 +1,9 @@
 package com.cm39.cm39.order.service;
 
 import com.cm39.cm39.order.dto.CartItemDto;
-import com.cm39.cm39.order.dto.CartListDto;
+import com.cm39.cm39.order.vo.CartItemVo;
 import com.cm39.cm39.order.mapper.CartItemMapper;
-import com.cm39.cm39.order.mapper.CartListMapper;
+import com.cm39.cm39.order.mapper.CartItemListMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,12 +19,12 @@ import static org.mockito.Mockito.*;
 
 //@SpringBootTest
 @ExtendWith(MockitoExtension.class)
-class CartItemServiceTest {
+class CartItemServiceImplTest {
     @Mock
     CartItemMapper cartItemMapper;
 
     @Mock
-    CartListMapper cartListMapper;
+    CartItemListMapper cartItemListMapper;
 
     @InjectMocks
     CartItemService cartItemService;
@@ -158,19 +158,19 @@ class CartItemServiceTest {
     @DisplayName("유저 장바구니 테스트")
     public void userCartListTest() {
         // given
-        List<CartListDto> cartListDtoList = new ArrayList<>();
+        List<CartItemVo> cartListDtoList = new ArrayList<>();
         String userId = "user1";
-        when(cartListMapper.selectUserCart(userId))
+        when(cartItemListMapper.selectUserCart(userId))
                 .thenReturn(cartListDtoList);
 
         // when
-        List<CartListDto> result = cartItemService.getUserCartList(userId);
+        List<CartItemVo> result = cartItemService.getUserCartList(userId);
 
         // then
         assertEquals(result.size(), 0);
 
         // verify
-        verify(cartListMapper, times(1)).selectUserCart(any(String.class));
+        verify(cartItemListMapper, times(1)).selectUserCart(any(String.class));
     }
 
 //    @Test
