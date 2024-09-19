@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cm39.cm39.order.mapper.CartItemListMapper">
+    <!--
+        장바구니 목록에 필요한 정보
+        1. 상품 이미지   ProductImage
+        2. 브랜드명     Brand
+        3. 상품명      Product
+        4. 옵션명      ProductOption
+        5. 상품가격     Product
+        6. 수량       Cart
+        7. 배송비      브랜드 테이블(브랜드 배송정책 테이블?)에 추가 필요
+        8. 할인정보     ProductDiscount
+
+        #### 추가 필요
+        진열 여부
+        판매 가능 여부
+        재고 수량
+        최소 주문 가능 수량
+        최대 주문 가능 수량
+        추가 금액
+    -->
+
+    <select id="selectUserCart" resultType="CartItemVo" parameterType="string">
+        select
+            b.brand_id, b.brand_name, ci.cart_seq, ci.user_id, ci.prod_no, ci.item_no, img.img_path, p.prod_name, i.item_name, p.base_price, ci.qty, pd.disc_rate
+        from cartitem ci, item i, product p, productimage pi, image img, brand b, productdiscount pd
+        where true
+          and ci.user_id = #{userId}
+          and (ci.prod_no, ci.item_no) = (i.prod_no, i.item_no)
+          and ci.prod_no = p.prod_no
+          and p.prod_no = pi.prod_no
+          and pi.img_type_code = 'main'
+          and pi.img_seq = img.img_seq
+          and p.brand_id = b.brand_id
+          and p.prod_no = pd.prod_no
+          and date(now()) between pd.disc_start_date and pd.disc_end_date
+        order by cart_seq desc
+    </select>
+</mapper>

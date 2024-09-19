@@ -2,7 +2,7 @@ package com.cm39.cm39.order.controller;
 
 import com.cm39.cm39.order.domain.ApiResponse;
 import com.cm39.cm39.order.dto.CartItemDto;
-import com.cm39.cm39.order.dto.CartListDto;
+import com.cm39.cm39.order.vo.CartItemVo;
 import com.cm39.cm39.order.exception.CartAddFailException;
 import com.cm39.cm39.order.exception.CartModifyFailException;
 import com.cm39.cm39.order.exception.CartRemoveFailException;
@@ -102,7 +102,7 @@ public class CartItemController {
 
     @GetMapping("cart-item")
     public ResponseEntity<ApiResponse<?>> userCartList(String userId){
-        List<CartListDto> result = cartItemService.getUserCartList(userId);
+        List<CartItemVo> result = cartItemService.getUserCartList(userId);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
