@@ -33,6 +33,7 @@ public class LoginSuccessJWTProvideHandler extends SimpleUrlAuthenticationSucces
         UserDto selectedUser = userMapper.selectUserByUserId(userId);
         if (selectedUser != null) {
             selectedUser.setRefreshToken(refreshToken);
+            jwtService.updateRefreshToken(userId, refreshToken);
         }
 
         log.info("로그인에 성공합니다. userId: {}", userId);

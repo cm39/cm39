@@ -6,7 +6,9 @@ import com.cm39.cm39.filter.JsonUsernamePasswordAuthenticationFilter;
 import com.cm39.cm39.filter.JwtAuthenticationProcessingFilter;
 import com.cm39.cm39.handler.LoginFailureHandler;
 import com.cm39.cm39.handler.LoginSuccessJWTProvideHandler;
+import com.cm39.cm39.handler.OAuth2SuccessHandler;
 import com.cm39.cm39.user.mapper.UserMapper;
+import com.cm39.cm39.user.service.CustomOAuth2UserService;
 import com.cm39.cm39.user.service.JwtService;
 import com.cm39.cm39.user.service.UserServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,7 +24,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.logout.LogoutFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -30,6 +33,12 @@ public class SecurityConfig {
 
     @Autowired
     private UserServiceImpl userServiceImpl;
+
+    @Autowired
+    private CustomOAuth2UserService customOAuth2UserService;
+
+    @Autowired
+    private JwtService jwtService;
 
     @Autowired
     private UserMapper userMapper;
@@ -40,11 +49,8 @@ public class SecurityConfig {
     @Autowired
     private PasswordEncoderConfig passwordEncoder;
 
-    @Autowired
-    private JwtService jwtService;
-
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, OAuth2SuccessHandler oAuth2SuccessHandler) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 // jwt 로그인
@@ -53,14 +59,20 @@ public class SecurityConfig {
                 // 권한 설정
                 .authorizeHttpRequests((authorize) -> authorize
                         // 인증 불필요
-                        .requestMatchers("/signup", "/", "/login/form")
+                        .requestMatchers("/signup", "/", "/login/form", "/login/sns")
                         .permitAll()
                         .anyRequest()
                         .hasRole("USER")
                 )
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/login")
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(customOAuth2UserService))
+                        .successHandler(oAuth2SuccessHandler)
+                )
                 // custom filter
-                .addFilterAfter(jsonUsernamePasswordAuthenticationFilter(), LogoutFilter.class)
-                .addFilterBefore(jwtAuthenticationProcessingFilter(), JsonUsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(jwtAuthenticationProcessingFilter(), SecurityContextPersistenceFilter.class)
+                .addFilterAt(jsonUsernamePasswordAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 // logout
                 .logout((logout) -> logout
                         .logoutUrl("/logout")
@@ -104,6 +116,14 @@ public class SecurityConfig {
     @Bean
     public LoginSuccessJWTProvideHandler loginSuccessJWTProvideHandler() {
         return new LoginSuccessJWTProvideHandler();
+    }
+
+    /*
+     * Oauth 인증 성공 핸들러
+     * */
+    @Bean
+    public OAuth2SuccessHandler oAuth2SuccessHandler() {
+        return new OAuth2SuccessHandler();
     }
 
     @Bean

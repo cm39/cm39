@@ -4,10 +4,8 @@ import com.cm39.cm39.user.domain.UserDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -51,7 +49,7 @@ class UserMapperTest {
         assertEquals(userDto.getGndr(), selectedUser.getGndr());
         assertEquals(userDto.getTelNo(), selectedUser.getTelNo());
         assertEquals(userDto.getUserStatCode(), selectedUser.getUserStatCode());
-        assertEquals(userDto.getSnsTypeCode(), selectedUser.getSnsTypeCode());
+        assertEquals(userDto.getProviderTypeCode(), selectedUser.getProviderTypeCode());
         assertEquals(userDto.getRegId(), selectedUser.getRegId());
         assertEquals(userDto.getUpId(), selectedUser.getUpId());
     }
@@ -104,7 +102,7 @@ class UserMapperTest {
                 .gndr("F")
                 .telNo("01012345678")
                 .userStatCode("100")
-                .snsTypeCode("100")
+                .providerTypeCode("google")
                 .adInfoRcvAgrDate(now)
                 .regId(userId)
                 .upId(userId)

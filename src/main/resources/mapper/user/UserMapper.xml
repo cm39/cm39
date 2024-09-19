@@ -25,11 +25,12 @@
 
     <!--    회원가입-->
     <insert id="insertUser" parameterType="UserDto">
-        INSERT INTO cm39.User (user_id, grd_id, pwd, user_name, birth, gndr, tel_no, user_stat_code, sns_type_code,
+        INSERT INTO cm39.User (user_id, grd_id, pwd, user_name, birth, gndr, tel_no, user_stat_code, provider_type_code,
                                mnt_trms_agr_date, prsnl_info_agr_date, ad_info_rcv_agr_date,
                                signup_date, reg_date,
                                reg_id, up_date, up_id)
-        VALUES (#{userId}, #{grdId}, #{pwd}, #{userName}, #{birth}, #{gndr}, #{telNo}, #{userStatCode}, #{snsTypeCode},
+        VALUES (#{userId}, #{grdId}, #{pwd}, #{userName}, #{birth}, #{gndr}, #{telNo}, #{userStatCode},
+                #{providerTypeCode},
                 DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s'), DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s'),
                 #{adInfoRcvAgrDate}, DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s'),
                 DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s'), #{regId},

@@ -11,7 +11,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDateTime;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DisplayName("회원가입 테스트")
 @SpringBootTest
@@ -254,7 +255,7 @@ class SignupControllerTest {
                 .gndr("F")
                 .telNo("01012345678")
                 .userStatCode("100")
-                .snsTypeCode("100")
+                .providerTypeCode("email")
                 .prsnlInfoAgrDate(now)
                 .mntTrmsAgrDate(now)
                 .adInfoRcvAgrDate(now)

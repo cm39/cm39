@@ -84,8 +84,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
             jwtService.sendAccessToken(response, jwtService.createAccessToken(userDto.getUserId()));
         } else {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("refresh token is invalid or expired");
-            response.getWriter().flush();
+            response.sendRedirect("/login/sns");
         }
     }
 
