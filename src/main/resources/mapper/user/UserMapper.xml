@@ -10,6 +10,13 @@
         where user_id = #{userId}
     </select>
 
+    <!--    refreshToken으로 회원 정보 조회-->
+    <select id="selectUserByRefreshToken" resultType="UserDto" parameterType="String">
+        select *
+        from cm39.User
+        where refresh_token = #{refreshToken}
+    </select>
+
     <!--    모든 회원 정보 조회-->
     <select id="selectAllUser" resultType="UserDto">
         select *
@@ -28,6 +35,14 @@
                 DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s'), #{regId},
                 DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s'), #{upId})
     </insert>
+
+    <update id="updateRefreshToken" parameterType="map">
+        UPDATE cm39.User
+        SET refresh_token = #{refreshToken},
+            up_date       = DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s'),
+            up_id         = #{upId}
+        WHERE user_id = #{userId}
+    </update>
 
     <!--    회원 전체 삭제-->
     <delete id="deleteAllUser">

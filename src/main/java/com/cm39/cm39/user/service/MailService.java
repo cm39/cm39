@@ -1,7 +1,6 @@
 package com.cm39.cm39.user.service;
 
-import com.cm39.cm39.exception.user.AlreadyExistsUserException;
-import com.cm39.cm39.exception.user.FailSendEmailException;
+import com.cm39.cm39.exception.user.SystemException;
 import com.cm39.cm39.exception.user.UserException;
 import com.cm39.cm39.exception.user.UserExceptionMessage;
 import com.cm39.cm39.user.mapper.UserMapper;
@@ -13,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
@@ -32,15 +30,12 @@ import java.util.Random;
 @Service
 @RequiredArgsConstructor
 public class MailService {
-    @Autowired
-    private JavaMailSender javaMailSender;
-
+    private static final String senderEmail = "seon.hannn@gmail.com";
     @Autowired
     private final UserMapper userMapper;
-
-    private static final String senderEmail = "seon.hannn@gmail.com";
-
     private final String code = createCode();
+    @Autowired
+    private JavaMailSender javaMailSender;
 
     // 코드 생성
     public String createCode() {
@@ -50,8 +45,8 @@ public class MailService {
         for (int i = 0; i < 8; i++) { // 인증코드 총 8자리
             int index = random.nextInt(3); // 0~2 랜덤, 랜덤값으로 switch문 실행
             switch (index) {
-                case 0 -> key.append((char) ((int) random.nextInt(26) + 97));
-                case 1 -> key.append((char) (int) random.nextInt(26) + 65);
+                case 0 -> key.append((char) (random.nextInt(26) + 97));
+                case 1 -> key.append((char) random.nextInt(26) + 65);
                 case 2 -> key.append(random.nextInt(9));
             }
         }
@@ -62,7 +57,7 @@ public class MailService {
     // 중복 email 체크
     private void checkDuplicatedEmail(String email) {
         if (userMapper.selectUserByUserId(email) != null) {
-            throw new AlreadyExistsUserException(UserExceptionMessage.EXISTING_ACCOUNT.getMessage());
+            throw new UserException(UserExceptionMessage.EXISTING_ACCOUNT.getMessage());
         }
     }
 
@@ -93,11 +88,11 @@ public class MailService {
             MimeMessage message = createEmailMessage(senderEmail, email);
             javaMailSender.send(message);
         } catch (MessagingException e) {
-            throw new FailSendEmailException(UserExceptionMessage.FAIL_SEND_CODE.getMessage());
+            throw new SystemException(UserExceptionMessage.FAIL_SEND_CODE.getMessage());
         } catch (UnsupportedEncodingException e) {
 
         } catch (MailException e) {
-            throw new FailSendEmailException(UserExceptionMessage.FAIL_SEND_MAIL.getMessage());
+            throw new SystemException(UserExceptionMessage.FAIL_SEND_MAIL.getMessage());
         }
 
         return code;

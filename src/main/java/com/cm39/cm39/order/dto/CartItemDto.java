@@ -15,6 +15,7 @@ public class CartItemDto {
     public static final int MAX_QTY = 100;
     public static final int MIN_QTY = 1;
 
+
     private Integer cartSeq;            // 장바구니 번호
     private String userId;              // 유저 아이디
     private String  prodNo;             // 상품 번호

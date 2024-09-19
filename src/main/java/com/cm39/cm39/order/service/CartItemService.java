@@ -25,4 +25,5 @@ public interface CartItemService {
 
     // 장바구니 목록 조회
     List<CartItemVo> getUserCartList(String userId);
+
 }
