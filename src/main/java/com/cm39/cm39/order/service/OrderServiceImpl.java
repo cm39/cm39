@@ -3,7 +3,6 @@ package com.cm39.cm39.order.service;
 import com.cm39.cm39.exception.user.UserException;
 import com.cm39.cm39.order.dto.*;
 import com.cm39.cm39.order.exception.OrderException;
-import com.cm39.cm39.order.exception.OrderNumGenerateException;
 import com.cm39.cm39.order.mapper.OrderItemMapper;
 import com.cm39.cm39.order.mapper.OrderMapper;
 import com.cm39.cm39.order.vo.OrderFormItemVo;
@@ -24,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.cm39.cm39.exception.user.UserExceptionMessage.*;
+import static com.cm39.cm39.order.exception.OrderExceptionMessage.*;
 
 @Service
 @RequiredArgsConstructor
@@ -144,6 +144,9 @@ public class OrderServiceImpl implements OrderService {
         // 주문 품목 목록
         List<OrderFormItemVo> orderFormItemVoList = request.getOrderFormItemVoList();
 
+        if (orderFormItemVoList.size() < 1)
+            throw new OrderException(ORDER_ITEM_NOT_FOUND.getMessage());
+
         // 사용 가능 쿠폰
         CartCoupon cartCoupon = couponService.availableUserCartCoupon(userId);
         List<ItemCoupon> itemCouponList = couponService.availableUserItemCoupon(userId);
@@ -201,7 +204,7 @@ public class OrderServiceImpl implements OrderService {
         int result = paymentService.insertPayment(paymentDto);
 
         if(result != 1)
-            throw new OrderException();
+            throw new OrderException(FAIL_ADD_ORDER_INFO.getMessage());
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -212,7 +215,7 @@ public class OrderServiceImpl implements OrderService {
         }
 
         if (result != orderItemList.size())
-            throw new OrderException();
+            throw new OrderException(FAIL_ADD_ORDER_INFO.getMessage());
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -220,7 +223,7 @@ public class OrderServiceImpl implements OrderService {
         int result = orderMapper.insertOrder(orderDto);
 
         if (result != 1)
-            throw new OrderException();
+            throw new OrderException(FAIL_ADD_ORDER_INFO.getMessage());
     }
 
     private int validateTotalOrderPrice(List<OrderItem> orderItemList) {
@@ -287,7 +290,7 @@ public class OrderServiceImpl implements OrderService {
             // 포맷해서 반환
             return srcTime.format(formatter);
         } catch (Exception e) {
-            throw new OrderNumGenerateException(e);
+            throw new OrderException(FAIL_ORDER_NUM_GENERATE.getMessage(), e);
         }
     }
 }
