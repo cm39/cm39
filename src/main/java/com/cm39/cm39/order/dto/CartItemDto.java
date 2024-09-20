@@ -12,8 +12,9 @@ import org.hibernate.validator.constraints.Length;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CartItemDto {
-    static final int MAX_QTY = 100;
-    static final int MIN_QTY = 1;
+    public static final int MAX_QTY = 100;
+    public static final int MIN_QTY = 1;
+
 
     private Integer cartSeq;            // 장바구니 번호
     private String userId;              // 유저 아이디
