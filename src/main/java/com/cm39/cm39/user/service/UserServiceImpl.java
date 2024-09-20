@@ -44,6 +44,8 @@ public class UserServiceImpl implements UserDetailsService, SignupService {
         if (selectedUser != null) {
             throw new UserException(selectedUser.getUserId() + " 이미 가입된 계정입니다.");
         }
+
+
     }
 
     @Override

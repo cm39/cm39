@@ -31,6 +31,7 @@ public class UserDto implements UserDetails {
     @Size(max = 1000)
     private String refreshToken;
     private String role = "ROLE_USER";
+    //    private ProviderType providerType;
     @NotBlank
     @Size(max = 50)
     private String userName;
@@ -46,7 +47,7 @@ public class UserDto implements UserDetails {
     @Size(max = 50)
     private String userStatCode;
     @Size(max = 50)
-    private String snsTypeCode;
+    private String providerTypeCode;
     @NotNull
     @PastOrPresent
     private LocalDateTime mntTrmsAgrDate; // 필수약관

@@ -32,6 +32,9 @@ class UserServiceTest {
 
     @Test
     void loadUserByUsername() {
+        int[] arr = {1, 2, 3,};
+        System.out.println(arr.length);
+
         UserDto userDto = getUserDto();
         userServiceImpl.signup(userDto);
         assertEquals(countUser(), 1);
@@ -87,7 +90,7 @@ class UserServiceTest {
                 .gndr("F")
                 .telNo("01012345678")
                 .userStatCode("100")
-                .snsTypeCode("100")
+                .providerTypeCode("email")
                 .adInfoRcvAgrDate(now)
                 .regId(userId)
                 .upId(userId)

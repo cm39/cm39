@@ -11,6 +11,7 @@ public enum UserExceptionMessage {
     FAIL_SEND_MAIL("메일 발송이 실패했습니다. 고객센터에 문의해 주세요."),
     INVALID_VERIFY_CODE("이메일 인증에 실패했습니다. 다시 시도해주세요."),
     INVALID_VERIFY_TOKEN("유효하지 않은 토큰입니다."),
+    INVALID_OAUTH_TYPE("유효하지 않은 OAuth 타입입니다."),
     FAIL_SEND_CODE("인증 메일 전송에 실패했습니다. 다시 시도해주세요.");
 
     private final String message;

@@ -24,7 +24,7 @@ import java.util.List;
 public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
-    private final List<String> NO_CHECK_URLS = List.of("/login/form", "/", "/signup/**");
+    private final List<String> NO_CHECK_URLS = List.of("/login/form", "/", "/signup/**", "/login/oauth2/**", "/oauth2/**", "/favicon.ico");
     private final JwtService jwtService;
     private final UserMapper userMapper;
     private final GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
@@ -84,8 +84,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
             jwtService.sendAccessToken(response, jwtService.createAccessToken(userDto.getUserId()));
         } else {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("refresh token is invalid or expired");
-            response.getWriter().flush();
+            response.sendRedirect("/login/sns");
         }
     }
 
