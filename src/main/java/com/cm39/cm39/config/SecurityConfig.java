@@ -65,7 +65,7 @@ public class SecurityConfig {
                         .hasRole("USER")
                 )
                 .oauth2Login(oauth2 -> oauth2
-                        .loginPage("/login")
+                        .loginPage("/login/form")
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService))
                         .successHandler(oAuth2SuccessHandler)
