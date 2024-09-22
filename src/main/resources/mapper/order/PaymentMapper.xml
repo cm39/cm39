@@ -8,6 +8,25 @@
         values (#{payNo}, #{ordNo}, #{payKey}, #{payCode}, #{payStatCode}, #{payPrice}, #{dpsr}, #{dpsrAccNo}, #{dpsrBank})
     </insert>
 
+<!--    주문번호로 결제 조회-->
+    <select id="selectPaymentByOrderNo" resultType="PaymentDto" parameterType="string">
+        select *
+        from Payment
+        where ord_no = #{ordNo}
+    </select>
+
+<!--    주문번호로 paymentKe 수정-->
+    <update id="updatePaymentKey" parameterType="PaymentDto">
+        update Payment
+        set pay_key = #{payKey}
+    </update>
+
+    <update id="updatePaymentStatusByOrderNo" parameterType="PaymentDto">
+        update Payment
+        set pay_stat_code = #{payStatCode}
+        where ord_no = #{ordNo}
+    </update>
+
 <!--    테스트 용-->
 <!--    전체 삭제-->
     <delete id="deleteAll">
