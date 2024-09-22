@@ -4,6 +4,7 @@ import com.cm39.cm39.order.dto.CartItemDto;
 import com.cm39.cm39.order.dto.CartListDto;
 import com.cm39.cm39.order.mapper.CartItemMapper;
 import com.cm39.cm39.order.mapper.CartListMapper;
+import com.cm39.cm39.order.vo.CartItemVo;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -164,7 +165,7 @@ class CartItemServiceTest {
                 .thenReturn(cartListDtoList);
 
         // when
-        List<CartListDto> result = cartItemService.getUserCartList(userId);
+        List<CartItemVo> result = cartItemService.getUserCartList(userId);
 
         // then
         assertEquals(result.size(), 0);

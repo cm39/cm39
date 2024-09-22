@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://js.tosspayments.com/v2/standard"></script>
+</head>
+<body>
+!-- 할인 쿠폰 -->
+<div>
+    <input type="checkbox" id="coupon-box" />
+    <label for="coupon-box"> 5,000원 쿠폰 적용 </label>
+</div>
+<!-- 결제 UI -->
+<div id="payment-method"></div>
+<!-- 이용약관 UI -->
+<div id="agreement"></div>
+<!-- 결제하기 버튼 -->
+<button class="button" id="payment-button" style="margin-top: 30px">결제하기</button>
+
+<script>
+    main();
+
+    async function main() {
+        const button = document.getElementById("payment-button");
+        const coupon = document.getElementById("coupon-box");
+        // ------  결제위젯 초기화 ------
+        const clientKey = "test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm";
+        const tossPayments = TossPayments(clientKey);
+        // 회원 결제
+        const customerKey = "sp02KFi5_3g0nGzfD7Tb8";
+        const widgets = tossPayments.widgets({
+            customerKey,
+        });
+        // 비회원 결제
+        // const widgets = tossPayments.widgets({ customerKey: TossPayments.ANONYMOUS });
+
+        // ------ 주문의 결제 금액 설정 ------
+        await widgets.setAmount({
+            currency: "KRW",
+            value: 0,
+        });
+
+        await Promise.all([
+            // ------  결제 UI 렌더링 ------
+            widgets.renderPaymentMethods({
+                selector: "#payment-method",
+                variantKey: "DEFAULT",
+            }),
+            // ------  이용약관 UI 렌더링 ------
+            widgets.renderAgreement({ selector: "#agreement", variantKey: "AGREEMENT" }),
+        ]);
+
+        // ------ '결제하기' 버튼 누르면 결제창 띄우기 ------
+        button.addEventListener("click", async function () {
+
+            const request = {
+                "userId":"user1",
+                "payCode":"01",
+                "customerEmail":"user1@user.com",
+                "customerName":"홍길동",
+                "customerMobilePhone":"01012345678",
+                "totalOrderPrice":15000,
+                "orderItemList":[
+                    {
+                        "productNo":"P0001",
+                        "productName":"가디건",
+                        "itemPrice":1000,
+                        "itemNo":"I0001",
+                        "qty":5
+                    },
+                    {
+                        "productNo":"P0001",
+                        "productName":"가디건",
+                        "itemPrice":2500,
+                        "itemNo":"I0002",
+                        "qty":2
+                    },
+                    {
+                        "productNo":"P0001",
+                        "productName":"가디건",
+                        "itemPrice":5000,
+                        "itemNo":"I0003",
+                        "qty":1
+                    }
+                ]
+            }
+            const result = await fetch("/order/orderReady", {
+                method: "POST",
+                body: JSON.stringify(request),
+                headers: {
+                    'Content-Type': 'application/json; charset=utf-8',
+                },
+                dataType : 'json',
+            })
+                .then((response) => {return response.json()});
+
+            const res = result.data;
+
+            console.log(result.data);
+
+            await widgets.setAmount({
+                currency: "KRW",
+                value: res.paymentPrice,
+            });
+
+            await widgets.requestPayment({
+                orderId: res.orderId,
+                orderName: res.orderName,
+                successUrl: window.location.origin + res.successUrl,
+                failUrl: window.location.origin + res.failUrl,
+                customerEmail: res.customerEmail,
+                customerName: res.customerName,
+                customerMobilePhone: res.customerMobilePhone,
+            });
+        });
+    }
+</script>
+</body>
+</html>
