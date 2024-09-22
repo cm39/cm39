@@ -1,11 +1,15 @@
 package com.cm39.cm39.order.dto;
 
-import com.cm39.cm39.promotion.domain.CartCoupon;
-import lombok.Builder;
+import lombok.*;
 
 import java.util.List;
 
+@Setter
+@Getter
+@ToString
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class OrderReadyResponse {
     /*
         주문자 정보
@@ -23,6 +27,7 @@ public class OrderReadyResponse {
     private String orderName;                   // 주문 이름
     private String customerEmail;               // 구매자 이메일
     private String customerName;                // 구매자 이름
+    private String customerMobilePhone;         // 구매자 휴대전화번호
     private String successUrl;                  // 성공 콜백 주소
     private String failUrl;                     // 실패 콜백 주소
 }

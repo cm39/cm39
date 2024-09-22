@@ -1,14 +1,15 @@
 package com.cm39.cm39.order.dto;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
 @Getter
 @Setter
+@ToString
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class OrderReadyRequest {
     /*
         주문자 정보
@@ -26,12 +27,13 @@ public class OrderReadyRequest {
     private String userId;
     private String customerEmail;           // 구매자명
     private String customerName;            // 구매자명
+    private String customerMobilePhone;         // 구매자 휴대전화번호
     private Integer totalOrderPrice;        // 총 주문금액
 
     private List<OrderItem> orderItemList;  // 주문 품목 목록
 
     private void makeOrderName(){
-        orderName = orderItemList.get(0).getProductName() + " 외 " + (orderItemList.size() - 1) + " 건";
+        orderName = orderItemList.get(0).getProductName() + " 외 " + (orderItemList.size() - 1) + "건";
     }
     public String getOrderName(){
         if (orderName == null)
