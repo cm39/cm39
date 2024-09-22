@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cm39.cm39.order.mapper.PaymentMapper">
+    <insert id="insertPayment" parameterType="PaymentDto">
+        insert into Payment (pay_no, ord_no, pay_key, pay_code, pay_stat_code, pay_price, dpsr, dpsr_acc_no, dpsr_bank)
+        values (#{payNo}, #{ordNo}, #{payKey}, #{payCode}, #{payStatCode}, #{payPrice}, #{dpsr}, #{dpsrAccNo}, #{dpsrBank})
+    </insert>
+
+<!--    주문번호로 결제 조회-->
+    <select id="selectPaymentByOrderNo" resultType="PaymentDto" parameterType="string">
+        select *
+        from Payment
+        where ord_no = #{ordNo}
+    </select>
+
+<!--    주문번호로 paymentKe 수정-->
+    <update id="updatePaymentKey" parameterType="PaymentDto">
+        update Payment
+        set pay_key = #{payKey}
+    </update>
+
+    <update id="updatePaymentStatusByOrderNo" parameterType="PaymentDto">
+        update Payment
+        set pay_stat_code = #{payStatCode}
+        where ord_no = #{ordNo}
+    </update>
+
+<!--    테스트 용-->
+<!--    전체 삭제-->
+    <delete id="deleteAll">
+        delete
+        from Payment
+    </delete>
+
+<!--    전체 개수-->
+    <select id="countAll" resultType="int">
+        select count(*)
+        from Payment
+    </select>
+
+<!--    전체 목록 조회-->
+    <select id="selectAll" resultType="PaymentDto">
+        select *
+        from Payment
+    </select>
+</mapper>

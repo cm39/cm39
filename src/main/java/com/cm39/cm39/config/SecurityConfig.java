@@ -55,7 +55,6 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, OAuth2SuccessHandler oAuth2SuccessHandler) throws Exception {
-
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 // jwt 로그인
