@@ -9,6 +9,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
@@ -19,15 +20,15 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.List;
 
 public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
-    private final List<String> NO_CHECK_URLS = List.of("/login/form", "/", "/signup/**", "/login/oauth2/**", "/oauth2/**", "/favicon.ico");
     private final JwtService jwtService;
     private final UserMapper userMapper;
     private final GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
+    @Value("${security.permit.endpoints}")
+    private String[] NO_CHECK_URLS;
 
     public JwtAuthenticationProcessingFilter(JwtService jwtService, UserMapper userMapper) {
         this.jwtService = jwtService;

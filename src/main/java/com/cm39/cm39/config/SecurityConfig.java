@@ -14,6 +14,7 @@ import com.cm39.cm39.user.service.UserServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,6 +31,9 @@ import org.springframework.security.web.context.SecurityContextPersistenceFilter
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    @Value("${security.permit.endpoints}")
+    private String[] permitAllEndpoints;
 
     @Autowired
     private UserServiceImpl userServiceImpl;
@@ -51,6 +55,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, OAuth2SuccessHandler oAuth2SuccessHandler) throws Exception {
+
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 // jwt 로그인
@@ -59,7 +64,7 @@ public class SecurityConfig {
                 // 권한 설정
                 .authorizeHttpRequests((authorize) -> authorize
                         // 인증 불필요
-                        .requestMatchers("/signup", "/", "/login/form", "/login/sns")
+                        .requestMatchers(permitAllEndpoints)
                         .permitAll()
                         .anyRequest()
                         .hasRole("USER")
