@@ -8,6 +8,12 @@
         values (#{ordNo}, #{ordItemSeq}, #{prodNo}, #{itemNo}, #{itemQty}, #{itemPrice}, #{ordItemStatCode})
     </insert>
 
+    <update id="updateOrderItemStatusByOrderNo" parameterType="OrderItemDto">
+        update OrderItem
+        set ord_item_stat_code = #{ordItemStatCode}
+        where ord_no = #{ordNo}
+    </update>
+
 
 <!--    테스트 용-->
 <!--    전체 삭제-->

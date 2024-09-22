@@ -8,7 +8,11 @@
         values (#{ordNo}, #{userId}, #{ordName}, #{totalOrdPrice}, #{ordStatCode})
     </insert>
 
-
+    <update id="updateOrderStatusByOrderNo" parameterType="OrderDto">
+        update `Order`
+        set ord_stat_code = #{ordStatCode}
+        where ord_no = #{ordNo}
+    </update>
 
 <!--    테스트 용-->
 <!--    전체 삭제-->

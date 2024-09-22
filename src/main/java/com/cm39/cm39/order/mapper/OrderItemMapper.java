@@ -9,6 +9,8 @@ import java.util.List;
 public interface OrderItemMapper {
     int insertOrderItem(OrderItemDto orderItemDto);
 
+    int updateOrderItemStatusByOrderNo(OrderItemDto orderItemDto);
+
     // 테스트 용
     int deleteAll();
     int countAll();
