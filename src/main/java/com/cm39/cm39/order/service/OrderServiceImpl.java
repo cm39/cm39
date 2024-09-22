@@ -6,10 +6,6 @@ import com.cm39.cm39.order.exception.OrderException;
 import com.cm39.cm39.order.mapper.OrderItemMapper;
 import com.cm39.cm39.order.mapper.OrderMapper;
 import com.cm39.cm39.order.vo.OrderFormItemVo;
-import com.cm39.cm39.promotion.domain.CartCoupon;
-import com.cm39.cm39.promotion.domain.ItemCoupon;
-import com.cm39.cm39.promotion.service.CouponService;
-import com.cm39.cm39.promotion.service.MileageService;
 import com.cm39.cm39.user.domain.UserDto;
 import com.cm39.cm39.user.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
@@ -24,20 +20,19 @@ import java.util.List;
 
 import static com.cm39.cm39.exception.user.UserExceptionMessage.*;
 import static com.cm39.cm39.order.exception.OrderExceptionMessage.*;
+import static com.cm39.cm39.order.service.Code.*;
 
 @Service
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
-    private final String successCallbackUrl = "/payment/success";
-    private final String failCallbackUrl = "/payment/fail";
+    private final String SUCCESS_CALLBACK_URL = "/payment/success";
+    private final String FAIL_CALLBACK_URL = "/payment/fail";
 
     private final UserMapper userMapper;
     private final OrderMapper orderMapper;
     private final OrderItemMapper orderItemMapper;
 
     private final PaymentService paymentService;
-    private final MileageService mileageService;
-    private final CouponService couponService;
     /*
         1. 주문서 정보 생성
         2. 주문 정보 검증
@@ -138,25 +133,15 @@ public class OrderServiceImpl implements OrderService {
         if (user == null)
             throw new UserException(ACCOUNT_NOT_FOUND.getMessage());
 
-        // 가용 적립금 조회
-        int availableMileage = mileageService.availableUserMileage(userId);
-
         // 주문 품목 목록
         List<OrderFormItemVo> orderFormItemVoList = request.getOrderFormItemVoList();
 
         if (orderFormItemVoList.size() < 1)
             throw new OrderException(ORDER_ITEM_NOT_FOUND.getMessage());
 
-        // 사용 가능 쿠폰
-        CartCoupon cartCoupon = couponService.availableUserCartCoupon(userId);
-        List<ItemCoupon> itemCouponList = couponService.availableUserItemCoupon(userId);
-
         return OrderFormResponse.builder()
                 .user(user)
-                .availableMileage(availableMileage)
                 .orderFormItemVoList(orderFormItemVoList)
-                .cartCoupon(cartCoupon)
-                .itemCouponList(itemCouponList)
                 .build();
     }
 
@@ -172,6 +157,9 @@ public class OrderServiceImpl implements OrderService {
         // 리스트의 각각 개별 상품 가격 검증
         // 총 가격 검증
         int totalOrderPrice = validateTotalOrderPrice(orderItemList);
+
+        // 유저 아이디 저장
+        request.setUserId(userId);
 
         // 검증 내용으로 수정
         request.setTotalOrderPrice(totalOrderPrice);
@@ -194,8 +182,9 @@ public class OrderServiceImpl implements OrderService {
                 .orderName(request.getOrderName())
                 .customerEmail(request.getCustomerEmail())
                 .customerName(request.getCustomerName())
-                .successUrl(successCallbackUrl)
-                .failUrl(failCallbackUrl)
+                .customerMobilePhone(request.getCustomerMobilePhone())
+                .successUrl(SUCCESS_CALLBACK_URL)
+                .failUrl(FAIL_CALLBACK_URL)
                 .build();
     }
 
@@ -230,22 +219,23 @@ public class OrderServiceImpl implements OrderService {
         int totalOrdPrice = 0;
 
         for (OrderItem orderItem : orderItemList) {
-            totalOrdPrice = totalOrdPrice + orderItem.getItemPrice();
+            totalOrdPrice = totalOrdPrice + (orderItem.getItemPrice() * orderItem.getQty());
         }
 
         return totalOrdPrice;
     }
 
-    public OrderDto OrderRequestToOrderDto(String orderId, OrderReadyRequest request){
+    private OrderDto OrderRequestToOrderDto(String orderId, OrderReadyRequest request){
         return OrderDto.builder()
                 .ordNo(orderId)
+                .userId(request.getUserId())
                 .ordName(request.getOrderName())
                 .totalOrdPrice(request.getTotalOrderPrice())
-                .ordStatCode("주문 대기")
+                .ordStatCode(ORDER_READY.getCodeName())
                 .build();
     }
 
-    public List<OrderItemDto> OrderRequestToOrderItemDtoList(String orderId, OrderReadyRequest request){
+    private List<OrderItemDto> OrderRequestToOrderItemDtoList(String orderId, OrderReadyRequest request){
         List<OrderItemDto> result = new ArrayList<>();
 
         for (int i = 0; i < request.getOrderItemList().size(); i++){
@@ -258,6 +248,7 @@ public class OrderServiceImpl implements OrderService {
                     .itemNo(orderItem.getItemNo())
                     .itemPrice(orderItem.getItemPrice())
                     .itemQty(orderItem.getQty())
+                    .ordItemStatCode(ORDER_READY.getCodeName())
                     .build();
 
             result.add(orderItemDto);
@@ -266,18 +257,18 @@ public class OrderServiceImpl implements OrderService {
         return result;
     }
 
-    public PaymentDto OrderRequestToPaymentDto(String orderId, OrderReadyRequest request){
+    private PaymentDto OrderRequestToPaymentDto(String orderId, OrderReadyRequest request){
         return PaymentDto.builder()
                 .payNo("P" + orderId)
                 .ordNo(orderId)
                 .payCode(request.getPayCode())
                 .payPrice(request.getTotalOrderPrice())
-                .payStatCode("결제 대기")
+                .payStatCode(PAYMENT_READY.getCodeName())
                 .build();
     }
 
     // 주문번호 생성
-    public synchronized String orderNumGenerator(){
+    private synchronized String orderNumGenerator(){
         try {
             // 쓰레드를 1mills 재운다.
             Thread.sleep(1);
