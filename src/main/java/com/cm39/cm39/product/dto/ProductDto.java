@@ -28,14 +28,16 @@ public class ProductDto {
     private String prodNo;
     private String cateId;
     private String brandId;
+    private String prodStatCode;
     private String prodName;
+    private String prodImg;
     private int starRate;
     private int revQty;
     private int likeQty;
     private String isOwnProd; // 자사상품여부
     private int basePrice;
     private int prodViewQty;
-    private String pordDesc;
+    private String prodDesc;
     private String dlvInfo;
     private String prodMat; // 상품소재
     private String prodSize;

@@ -14,9 +14,9 @@ public interface UserMapper {
     // select
     UserDto selectUserByUserId(String userId);
 
-    List<UserDto> selectAllUser();
-
     UserDto selectUserByRefreshToken(String refreshToken);
+
+    List<UserDto> selectAllUser();
 
     // update
     void updateRefreshToken(Map params);

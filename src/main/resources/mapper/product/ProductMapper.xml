@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cm39.cm39.product.mapper.ProductMapper">
+
+    <!--
+     상품 리스트 조회
+     1. 카테고리 (대, 중, 소)
+     2. 필터 - 색상, 가격, 품절 여부
+     3. 정렬 - 최신순, 조회순, 리뷰순
+     4. 페이징 처리
+    -->
+
+    <select id="selectProductList" parameterType="ProductFilter" resultType="ProductDto">
+        WITH RECURSIVE category_tree AS (
+            SELECT cate_id
+            FROM cm39.Category
+            WHERE cate_id = #{cateId}
+
+            UNION ALL
+
+            SELECT c.cate_id
+            FROM cm39.Category c
+            INNER JOIN category_tree ct ON c.parent_id = ct.cate_id
+        )
+        SELECT p.*
+        FROM cm39.Product p
+        <where>
+            -- 카테고리
+            <if test="cateId != 0 and cateId != null">
+                p.cate_id IN (SELECT cate_id FROM category_tree)
+            </if>
+            <if test="cateId == 0 or cateId == null">
+                1=1
+            </if>
+        </where>
+        -- 정렬
+        <choose>
+            <when test="sort == 'latest'">
+                ORDER BY p.prod_reg_date DESC
+            </when>
+            <when test="sort == 'popular'">
+                ORDER BY p.prod_view_qty DESC
+            </when>
+            <when test="sort == 'review'">
+                ORDER BY p.rev_qty DESC
+            </when>
+            <otherwise>
+                ORDER BY p.prod_reg_date DESC
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="countProductList" parameterType="ProductFilter" resultType="int">
+        WITH RECURSIVE category_tree AS (
+        SELECT cate_id
+        FROM cm39.Category
+        WHERE cate_id = #{cateId}
+
+        UNION ALL
+
+        SELECT c.cate_id
+        FROM cm39.Category c
+        INNER JOIN category_tree ct ON c.parent_id = ct.cate_id
+        )
+        SELECT COUNT(*)
+        FROM cm39.Product p
+        <where>
+            -- 카테고리
+            <if test="cateId != 0 and cateId != null">
+                p.cate_id IN (SELECT cate_id FROM category_tree)
+            </if>
+            <if test="cateId == 0 or cateId == null">
+                1=1
+            </if>
+        </where>
+        -- 정렬
+<!--        <choose>-->
+<!--            <when test="sort == 'latest'">-->
+<!--                ORDER BY p.prod_reg_date DESC-->
+<!--            </when>-->
+<!--            <when test="sort == 'popular'">-->
+<!--                ORDER BY p.prod_view_qty DESC-->
+<!--            </when>-->
+<!--            <when test="sort == 'review'">-->
+<!--                ORDER BY p.rev_qty DESC-->
+<!--            </when>-->
+<!--            <otherwise>-->
+<!--                ORDER BY p.prod_reg_date DESC-->
+<!--            </otherwise>-->
+<!--        </choose>-->
+    </select>
+
+</mapper>
